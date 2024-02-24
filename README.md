@@ -18,8 +18,8 @@ code dependency management, to ensure your code runs using the correct component
 | Number | Name              | User                                   | Email                                           |
 |--------|-------------------|----------------------------------------|-------------------------------------------------|
 | 103606 | Henrique Silva    | <https://github.com/henriqueeapsilva>  | <mailto:henriqueapsilva@tecnico.ulisboa.pt>     |
-| 22222  | Bob Systems       | <https://github.com/Pedroctbus>        | <mailto:pedrorebeloalmeida@tecnico.ulisboa.pt>  |
-| 33333  | Charlie Rules     | <https://github.com/tomasmacieira>     | <mailto:tomasmacieira@tecnico.ulisboa.pt>       | 
+| 104168 | Pedro Almeida     | <https://github.com/Pedroctbus>        | <mailto:pedrorebeloalmeida@tecnico.ulisboa.pt>  |
+| 100596 | Tomás Macieira    | <https://github.com/tomasmacieira>     | <mailto:tomasmacieira@tecnico.ulisboa.pt>       | 
 
 ## Getting Started
 
