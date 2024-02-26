@@ -25,7 +25,7 @@ public class ClientMain {
         final String port = args[1];
 
         CommandProcessor parser = new CommandProcessor(new ClientService());
-        parser.parseInput();
+        parser.parseInput(host, port);
 
     }
 }

@@ -4,6 +4,8 @@ import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 import java.util.Scanner;
 
+import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc;
+
 public class CommandProcessor {
 
     private static final String SPACE = " ";
@@ -23,9 +25,10 @@ public class CommandProcessor {
         this.clientService = clientService;
     }
 
-    void parseInput() {
+    void parseInput(String host, String port) {
 
         Scanner scanner = new Scanner(System.in);
+        clientService.createMainStub(host, port);
         boolean exit = false;
 
         while (!exit) {
@@ -59,6 +62,7 @@ public class CommandProcessor {
 
                 case EXIT:
                     exit = true;
+                    clientService.closeChannel();
                     break;
 
                 default:
@@ -80,7 +84,8 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // put the tuple
-        System.out.println("TODO: implement put command");
+        //System.out.println("TODO: implement put command");
+        clientService.put(tuple);
 
     }
 
@@ -95,7 +100,8 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // read the tuple
-        System.out.println("TODO: implement read command");
+        //System.out.println("TODO: implement read command");
+        clientService.read(tuple);
     }
 
 
@@ -110,7 +116,8 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // take the tuple
-        System.out.println("TODO: implement take command");
+        //System.out.println("TODO: implement take command");
+        clientService.take(tuple);
     }
 
     private void getTupleSpacesState(String[] split){
@@ -122,7 +129,8 @@ public class CommandProcessor {
         String qualifier = split[1];
 
         // get the tuple spaces state
-        System.out.println("TODO: implement getTupleSpacesState command");
+        //System.out.println("TODO: implement getTupleSpacesState command");
+        clientService.getTupleSpacesState(qualifier);
 
     }
 
