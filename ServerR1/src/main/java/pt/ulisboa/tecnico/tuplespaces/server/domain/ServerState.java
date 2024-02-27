@@ -25,17 +25,31 @@ public class ServerState {
     return null;
   }
 
+  private synchronized String waitForMatchingTuple(String pattern, boolean removeAfter) {
+    String matchingTuple = getMatchingTuple(pattern);
+    while (matchingTuple == null) {
+      try {
+        wait(); // wait until a tuple is added
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      matchingTuple = getMatchingTuple(pattern);
+    }
+    if (removeAfter) {
+      tuples.remove(matchingTuple);
+    }
+    return matchingTuple;
+  }
+
   public String read(String pattern) {
-    return getMatchingTuple(pattern);
+    return waitForMatchingTuple(pattern, false);
   }
 
   public String take(String pattern) {
-    // TODO
-    return null;
+    return waitForMatchingTuple(pattern, true);
   }
 
   public List<String> getTupleSpacesState() {
-    // TODO
-    return null;
+    return new ArrayList<>(tuples);
   }
 }
