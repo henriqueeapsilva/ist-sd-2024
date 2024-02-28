@@ -28,7 +28,7 @@ public class ClientService {
 
     public String put(String tuple) {
         try {
-            PutResponse put = stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
+            stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
             return "OK";
         } catch (StatusRuntimeException e) {
             Status status = e.getStatus();
@@ -56,7 +56,7 @@ public class ClientService {
         }
     }
 
-    public List<String> getTupleSpacesState(String qualifier) {
+    public List<String> getTupleSpacesState() {
         getTupleSpacesStateResponse tuple = stub.getTupleSpacesState(getTupleSpacesStateRequest.getDefaultInstance());
         return tuple.getTupleList();
     }

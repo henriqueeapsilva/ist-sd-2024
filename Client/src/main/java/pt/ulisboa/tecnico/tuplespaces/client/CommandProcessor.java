@@ -4,8 +4,6 @@ import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 import java.util.Scanner;
 
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc;
-
 public class CommandProcessor {
 
     private static final String SPACE = " ";
@@ -83,7 +81,6 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        // put the tuple
         System.out.println(clientService.put(tuple));
 
     }
@@ -98,8 +95,7 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        // read the tuple
-        System.out.println(clientService.read(tuple));
+        System.out.println("OK\n" + clientService.read(tuple));
     }
 
 
@@ -113,8 +109,7 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        // take the tuple
-        System.out.println(clientService.take(tuple));
+        System.out.println("OK\n" + clientService.take(tuple));
     }
 
     private void getTupleSpacesState(String[] split){
@@ -126,7 +121,7 @@ public class CommandProcessor {
         String qualifier = split[1];
 
         // get the tuple spaces state
-        System.out.println(clientService.getTupleSpacesState(qualifier));
+        System.out.println(clientService.getTupleSpacesState());
 
     }
 
