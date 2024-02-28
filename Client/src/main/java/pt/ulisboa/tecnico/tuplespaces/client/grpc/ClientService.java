@@ -2,6 +2,8 @@ package pt.ulisboa.tecnico.tuplespaces.client.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.*;
 
@@ -25,18 +27,33 @@ public class ClientService {
     }
 
     public String put(String tuple) {
-        PutResponse put = stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
-        return "OK";
+        try {
+            PutResponse put = stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
+            return "OK";
+        } catch (StatusRuntimeException e) {
+            Status status = e.getStatus();
+            return status.getDescription();
+        }
     }
 
     public String read(String tuple) {
-        ReadResponse result = stub.read(ReadRequest.newBuilder().setSearchPattern(tuple).build());
-        return result.getResult();
+        try {
+            ReadResponse result = stub.read(ReadRequest.newBuilder().setSearchPattern(tuple).build());
+            return result.getResult();
+        } catch (StatusRuntimeException e) {
+            Status status = e.getStatus();
+            return status.getDescription();
+        }
     }
 
     public String take(String tuple) {
-        TakeResponse result = stub.take(TakeRequest.newBuilder().setSearchPattern(tuple).build());
-        return result.getResult();
+        try {
+            TakeResponse result = stub.take(TakeRequest.newBuilder().setSearchPattern(tuple).build());
+            return result.getResult();
+        } catch (StatusRuntimeException e) {
+            Status status = e.getStatus();
+            return status.getDescription();
+        }
     }
 
     public List<String> getTupleSpacesState(String qualifier) {

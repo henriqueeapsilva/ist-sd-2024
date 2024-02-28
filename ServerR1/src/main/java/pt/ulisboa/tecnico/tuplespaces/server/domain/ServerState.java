@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 public class ServerState {
 
@@ -12,7 +13,14 @@ public class ServerState {
 
   }
 
+  public boolean isValidTuple(String tuple) {
+    return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
+  }
+
   public synchronized void put(String tuple) {
+    if (isValidTuple(tuple)) {
+      throw new IllegalArgumentException();
+    }
     tuples.add(tuple);
     notifyAll();
   }
@@ -43,10 +51,16 @@ public class ServerState {
   }
 
   public String read(String pattern) {
+    if (isValidTuple(pattern)) {
+      throw new IllegalArgumentException();
+    }
     return waitForMatchingTuple(pattern, false);
   }
 
   public String take(String pattern) {
+    if (isValidTuple(pattern)) {
+      throw new IllegalArgumentException();
+    }
     return waitForMatchingTuple(pattern, true);
   }
 
