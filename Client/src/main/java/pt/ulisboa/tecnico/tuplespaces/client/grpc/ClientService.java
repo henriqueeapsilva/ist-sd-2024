@@ -4,6 +4,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.*;
+
+import java.util.List;
+
 import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc.*;
 
 public class ClientService {
@@ -21,20 +24,24 @@ public class ClientService {
          this.stub = newBlockingStub(this.channel);
     }
 
-    public void put(String tuple) {
+    public String put(String tuple) {
         PutResponse put = stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
+        return "OK";
     }
 
-    public void read(String tuple) {
+    public String read(String tuple) {
         ReadResponse result = stub.read(ReadRequest.newBuilder().setSearchPattern(tuple).build());
+        return result.getResult();
     }
 
-    public void take(String tuple) {
+    public String take(String tuple) {
         TakeResponse result = stub.take(TakeRequest.newBuilder().setSearchPattern(tuple).build());
+        return result.getResult();
     }
 
-    public void getTupleSpacesState(String qualifier) {
+    public List<String> getTupleSpacesState(String qualifier) {
         getTupleSpacesStateResponse tuple = stub.getTupleSpacesState(getTupleSpacesStateRequest.getDefaultInstance());
+        return tuple.getTupleList();
     }
     public void closeChannel() {
         this.channel.shutdownNow();

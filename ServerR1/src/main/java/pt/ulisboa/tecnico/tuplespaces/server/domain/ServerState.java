@@ -12,8 +12,9 @@ public class ServerState {
 
   }
 
-  public void put(String tuple) {
+  public synchronized void put(String tuple) {
     tuples.add(tuple);
+    notifyAll();
   }
 
   private String getMatchingTuple(String pattern) {

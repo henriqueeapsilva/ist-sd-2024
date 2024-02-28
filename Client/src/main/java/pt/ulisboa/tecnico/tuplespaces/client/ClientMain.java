@@ -7,6 +7,7 @@ public class ClientMain {
 
         System.out.println(ClientMain.class.getSimpleName());
 
+
         // receive and print arguments
         System.out.printf("Received %d arguments%n", args.length);
         for (int i = 0; i < args.length; i++) {
@@ -14,7 +15,7 @@ public class ClientMain {
         }
 
         // check arguments
-        if (args.length != 3) {
+        if (args.length != 2) {
             System.err.println("Argument(s) missing!");
             System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port>");
             return;

@@ -24,7 +24,7 @@ message TakeResponse {
 }
 
 message getTupleSpacesStateRequest {
-  // No args
+  // No args - possibly will have a argument of the server qualifier
 }
 message getTupleSpacesStateResponse {
   repeated string tuple = 1;
