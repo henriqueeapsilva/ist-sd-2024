@@ -10,12 +10,12 @@ public class ServerMain {
 
     public static void main(String[] args) throws IOException, InterruptedException{
 
-        System.out.println(ServerMain.class.getSimpleName());
+        System.err.println(ServerMain.class.getSimpleName());
 
         // receive and print arguments
-        System.out.printf("Received %d arguments%n", args.length);
+        System.err.printf("Received %d arguments%n", args.length);
         for (int i = 0; i < args.length; i++) {
-            System.out.printf("arg[%d] = %s%n", i, args[i]);
+            System.err.printf("arg[%d] = %s%n", i, args[i]);
         }
 
         // check arguments
@@ -34,7 +34,7 @@ public class ServerMain {
         server.start();
 
         // Server threads are running in the background.
-        System.out.println("Server started");
+        System.err.println("Server started");
 
         // Do not exit the main thread. Wait until server is terminated.
         server.awaitTermination();
