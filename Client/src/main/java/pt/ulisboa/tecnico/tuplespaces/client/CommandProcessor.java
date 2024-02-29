@@ -81,7 +81,7 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        System.out.println(clientService.put(tuple) + "\n");
+        System.out.println(clientService.put(tuple));
 
     }
 
@@ -91,7 +91,7 @@ public class CommandProcessor {
             this.printUsage();
             return;
         }
-        
+
         // get the tuple
         String tuple = split[1];
 
@@ -105,7 +105,7 @@ public class CommandProcessor {
             this.printUsage();
             return;
         }
-        
+
         // get the tuple
         String tuple = split[1];
 

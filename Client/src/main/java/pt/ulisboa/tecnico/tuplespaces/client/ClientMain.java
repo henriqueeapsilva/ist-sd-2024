@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.tuplespaces.client;
 
-import com.google.rpc.DebugInfo;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 public class ClientMain {
