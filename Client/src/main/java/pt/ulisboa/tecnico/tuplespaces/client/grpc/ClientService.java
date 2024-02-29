@@ -22,8 +22,8 @@ public class ClientService {
     public void createMainStub(String host, String port) {
         final String target = host + ":" + port;
 
-         this.channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
-         this.stub = newBlockingStub(this.channel);
+        this.channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
+        this.stub = newBlockingStub(this.channel);
     }
 
     public String put(String tuple) {
