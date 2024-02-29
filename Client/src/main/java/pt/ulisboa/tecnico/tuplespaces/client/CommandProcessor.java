@@ -81,7 +81,7 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        System.out.println(clientService.put(tuple));
+        System.out.println(clientService.put(tuple) + "\n");
 
     }
 
@@ -91,11 +91,11 @@ public class CommandProcessor {
             this.printUsage();
             return;
         }
-        
+
         // get the tuple
         String tuple = split[1];
 
-        System.out.println("OK\n" + clientService.read(tuple));
+        System.out.println("OK\n" + clientService.read(tuple) + "\n");
     }
 
 
@@ -105,11 +105,11 @@ public class CommandProcessor {
             this.printUsage();
             return;
         }
-        
+
         // get the tuple
         String tuple = split[1];
 
-        System.out.println("OK\n" + clientService.take(tuple));
+        System.out.println("OK\n" + clientService.take(tuple) + "\n");
     }
 
     private void getTupleSpacesState(String[] split){
@@ -121,7 +121,7 @@ public class CommandProcessor {
         String qualifier = split[1];
 
         // get the tuple spaces state
-        System.out.println(clientService.getTupleSpacesState());
+        System.out.println("OK\n" + clientService.getTupleSpacesState() + "\n");
 
     }
 
