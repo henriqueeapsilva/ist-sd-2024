@@ -19,12 +19,34 @@ class NameServerStub(object):
                 request_serializer=NameServer__pb2.registerRequest.SerializeToString,
                 response_deserializer=NameServer__pb2.registerResponse.FromString,
                 )
+        self.lookup = channel.unary_unary(
+                '/pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServer/lookup',
+                request_serializer=NameServer__pb2.lookupRequest.SerializeToString,
+                response_deserializer=NameServer__pb2.lookupResponse.FromString,
+                )
+        self.delete = channel.unary_unary(
+                '/pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServer/delete',
+                request_serializer=NameServer__pb2.deleteRequest.SerializeToString,
+                response_deserializer=NameServer__pb2.deleteResponse.FromString,
+                )
 
 
 class NameServerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def register(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def lookup(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def delete(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +59,16 @@ def add_NameServerServicer_to_server(servicer, server):
                     servicer.register,
                     request_deserializer=NameServer__pb2.registerRequest.FromString,
                     response_serializer=NameServer__pb2.registerResponse.SerializeToString,
+            ),
+            'lookup': grpc.unary_unary_rpc_method_handler(
+                    servicer.lookup,
+                    request_deserializer=NameServer__pb2.lookupRequest.FromString,
+                    response_serializer=NameServer__pb2.lookupResponse.SerializeToString,
+            ),
+            'delete': grpc.unary_unary_rpc_method_handler(
+                    servicer.delete,
+                    request_deserializer=NameServer__pb2.deleteRequest.FromString,
+                    response_serializer=NameServer__pb2.deleteResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +94,39 @@ class NameServer(object):
         return grpc.experimental.unary_unary(request, target, '/pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServer/register',
             NameServer__pb2.registerRequest.SerializeToString,
             NameServer__pb2.registerResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def lookup(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServer/lookup',
+            NameServer__pb2.lookupRequest.SerializeToString,
+            NameServer__pb2.lookupResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def delete(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServer/delete',
+            NameServer__pb2.deleteRequest.SerializeToString,
+            NameServer__pb2.deleteResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -11,6 +11,28 @@ message registerResponse {
   string message = 1;
 }
 
+message lookupRequest {
+  string service = 1;
+  string qualifier = 2;
+}
+
+message lookupResponse {
+  repeated string servers = 1;
+}
+
+message deleteRequest {
+  string servicename = 1;
+  string address = 2;
+}
+
+message deleteResponse {
+  string response = 1;
+}
+
+
 service NameServer {
   rpc register(registerRequest) returns (registerResponse);
+  rpc lookup(lookupRequest) returns (lookupResponse);
+  rpc delete(deleteRequest) returns (deleteResponse);
 }
+
