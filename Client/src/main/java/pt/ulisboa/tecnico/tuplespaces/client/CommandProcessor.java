@@ -81,7 +81,7 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        System.out.println(clientService.put(tuple));
+        System.out.println(clientService.put(tuple) + "\n");
 
     }
 
