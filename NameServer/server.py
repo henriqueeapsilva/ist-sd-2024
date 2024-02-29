@@ -1,7 +1,9 @@
 import sys
 import grpc
 from concurrent import futures
-sys.path.insert(1, '../Contract/target/generated-sources/protobuf/python')
+sys.path.insert(0, '../Contract/target/generated-sources/protobuf/python')
+import NameServer_pb2 as pb2
+import NameServer_pb2_grpc as pb2_grpcs
 
 # define the port
 PORT = 5001
