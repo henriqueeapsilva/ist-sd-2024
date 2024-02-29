@@ -10,3 +10,7 @@ message registerRequest {
 message registerResponse {
   string message = 1;
 }
+
+service NameServer {
+  rpc register(registerRequest) returns (registerResponse);
+}

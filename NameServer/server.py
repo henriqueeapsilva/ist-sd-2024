@@ -1,6 +1,5 @@
 import sys
 import grpc
-import ServerState.py
 from concurrent import futures
 sys.path.insert(1, '../Contract/target/generated-sources/protobuf/python')
 
@@ -15,7 +14,7 @@ if __name__ == '__main__':
             print("  " + sys.argv[i])
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        server.add_insecure_port('[::]:'+ PORT))
+        server.add_insecure_port('[::]:'+ PORT)
         server.start()
         print('')
         server.wait_for_termination()
