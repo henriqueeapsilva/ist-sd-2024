@@ -1,5 +1,6 @@
 import sys
 import grpc
+import ServerState.py
 from concurrent import futures
 sys.path.insert(1, '../Contract/target/generated-sources/protobuf/python')
 
