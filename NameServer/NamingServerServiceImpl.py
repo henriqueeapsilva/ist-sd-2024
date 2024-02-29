@@ -15,20 +15,7 @@ class NamingServerServiceImpl(NameServerServicer):
     def __init__(self, infomap):
         self.naming_server = NamingServer(infomap)
 
-    def register(self, request, context):
-        name = request.name
-        qualifier = request.qualifier
-        address = request.address
-
-        try:
-            # Add the server to the service entry in the naming server
-            self.naming_server.add_server_to_service(name, ServerEntry(address, qualifier))
-            return registerResponse()
-        except Exception as e:
-            # Unable to register the server
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details("Not possible to register the server: {}".format(str(e)))
-            raise grpc.RpcError(grpc.StatusCode.INTERNAL, "Not possible to register the server")
+    
 
 
     def lookup(self, request, context):
