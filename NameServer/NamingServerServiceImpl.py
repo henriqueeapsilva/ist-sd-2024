@@ -7,10 +7,13 @@ class NamingServerServiceImpl(NameServerServicer):
         pass
 
     def register(self, request, context):
-        name = request.name
-        qualifier = request.qualifier
-        address = request.address
+        try:
+            name = request.name
+            qualifier = request.qualifier
+            address = request.address
 
-        response = registerResponse(register="")
-        return response
+            response = registerResponse(register="")
+            return response
+        except NameError:
+            print("Not possible to register the server")
 
