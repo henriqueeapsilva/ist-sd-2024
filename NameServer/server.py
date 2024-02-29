@@ -1,9 +1,9 @@
 import sys
 import grpc
 from concurrent import futures
-sys.path.insert(0, '../Contract/target/generated-sources/protobuf/python')
+from NamingServerServiceImpl import NamingServerServiceImpl
 import NameServer_pb2 as pb2
-import NameServer_pb2_grpc as pb2_grpcs
+from NameServer_pb2_grpc import add_NameServerServicer_to_server
 
 # define the port
 PORT = 5001
@@ -16,9 +16,10 @@ if __name__ == '__main__':
             print("  " + sys.argv[i])
 
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        server.add_insecure_port('[::]:'+ PORT)
+        add_NameServerServicer_to_server(NamingServerServiceImpl(), server)
+        server.add_insecure_port('[::]:'+ str(PORT))
         server.start()
-        print('')
+
         server.wait_for_termination()
 
     except KeyboardInterrupt:
