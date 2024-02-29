@@ -1,0 +1,12 @@
+syntax = "proto3";
+package pt.ulisboa.tecnico.tuplespaces.centralized.contract;
+
+message registerRequest {
+  string name = 1;
+  string qualifier = 2;
+  string address = 3;
+}
+
+message registerResponse {
+  string message = 1;
+}
