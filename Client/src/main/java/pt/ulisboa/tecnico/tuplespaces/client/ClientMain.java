@@ -35,25 +35,30 @@ public class ClientMain {
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
-        NameServerOuterClass.lookupResponse response = stub.lookup(NameServerOuterClass.lookupRequest.newBuilder()
-                .setService(service).setQualifier("A").build());
+        try {
+            NameServerOuterClass.lookupResponse response = stub.lookup(NameServerOuterClass.lookupRequest.newBuilder()
+                    .setService(service).build());
 
-        System.out.println("chegou aqui");
-        //get the host and port from the address
-        String[] servers = response.getServersList().toArray(new String[0]);
-        for (String server: servers){
-            System.out.println(server);
-        }
-        System.out.println("chegou aqui 2");
-        if (servers.length > 0) {
-            String server = servers[0];
-            String[] parts = server.split(":");
+            // Print possible servers
+            for (String server : response.getServersList()) {
+                System.out.println("Server: " + server);
+            }
 
-            String serverHost = parts[0];
-            String serverPort = parts[1];
+            // Perform further processing based on retrieved servers if needed
+            if (!response.getServersList().isEmpty()) {
+                // Assuming the first server in the list
+                String firstServer = response.getServers(0);
+                String[] parts = firstServer.split(":");
+                if (parts.length == 2) {
+                    String serverHost = parts[0];
+                    String serverPort = parts[1];
 
-            CommandProcessor parser = new CommandProcessor(new ClientService());
-            parser.parseInput(serverHost, serverPort);
+                    // Perform any additional processing with the server host and port
+                    System.out.println("Processing server: " + serverHost + ":" + serverPort);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error occurred during lookup: " + e.getMessage());
         }
         System.out.println("chegou aqui 3");
         //CommandProcessor parser = new CommandProcessor(new ClientService());

@@ -35,12 +35,14 @@ public class ServerMain {
 
         // Register on NamingServer
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5001).usePlaintext().build();
-        String target = "localhost" + ":" + "5001";
+
+        String target = "localhost:5001";
+
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
         NameServerOuterClass.registerResponse response = stub.register(NameServerOuterClass.registerRequest.newBuilder()
                 .setName(service).setQualifier(qualifier).setAddress(target).build());
 
-
+        System.out.println(response);
         // Start the server
         server.start();
 
@@ -52,7 +54,7 @@ public class ServerMain {
 
         //Delete server from NameServer
         NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
-                .setServicename(service).setAddress(target).setAddress(target).build());
+                .setServicename(service).setAddress(target).build());
     }
 }
 

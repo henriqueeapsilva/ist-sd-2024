@@ -14,10 +14,13 @@ class ServiceEntry:
     def add_server_entry(self, server_entry):
         self.serverEntries.append(server_entry)
 
+    def get_service_name(self):
+        return self.serviceName
+
 
 class NamingServer:
     def __init__(self, infomap):
-        self.map = infomap #if infomap is not None else {}
+        self.map = infomap  # if infomap is not None else {}
 
     def getMap(self):
         return self.map
