@@ -23,7 +23,7 @@ class NamingServerServiceImpl(NameServerServicer):
 
             self.naming_server.add_server_to_service(name, ServerEntry(address, qualifier))
 
-            return pb2.registerResponse(message="")
+            return pb2.registerResponse(response="")
         except Exception as e:
             # Unable to register the server
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -65,7 +65,6 @@ class NamingServerServiceImpl(NameServerServicer):
         # Try to remove the server from the service entry
         try:
             self.naming_server.remove_server_from_service(service_name, server_address)
-            print(self.naming_server.getMap())
             # Return an empty response indicating successful deletion
             return pb2.deleteResponse(response="")
         except Exception as e:

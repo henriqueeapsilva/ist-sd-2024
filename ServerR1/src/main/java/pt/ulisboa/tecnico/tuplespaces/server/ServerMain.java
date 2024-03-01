@@ -52,9 +52,8 @@ public class ServerMain {
         // Handle Ctrl + C
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             // Delete server from NameServer
-            NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
+            stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
                     .setServicename(service).setAddress(target).build());
-            System.out.println("deleteResponse");
             server.shutdownNow();
         }));
         server.awaitTermination();
