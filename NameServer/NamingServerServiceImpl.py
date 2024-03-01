@@ -12,7 +12,7 @@ from domain.ServerState import NamingServer
 
 class NamingServerServiceImpl(NameServerServicer):
 
-    def __init__(self, infomap):
+    def __init__(self, infomap=None):
         self.naming_server = NamingServer(infomap)
 
     def register(self, request, context):

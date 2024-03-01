@@ -1,9 +1,8 @@
 package pt.ulisboa.tecnico.tuplespaces.server;
 
 
-import io.grpc.BindableService;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.*;
+import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerGrpc;
 import java.io.IOException;
 
 public class ServerMain {
@@ -29,6 +28,11 @@ public class ServerMain {
 
         // Create a new server to listen on port
         Server server = ServerBuilder.forPort(port).addService(impl).build();
+
+        // Register on NamingServer
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5001).usePlaintext().build();
+
+        NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
         // Start the server
         server.start();
