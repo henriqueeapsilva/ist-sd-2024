@@ -16,8 +16,11 @@ class ServiceEntry:
 
 
 class NamingServer:
-    def __init__(self, infomap=None):
-        self.map = infomap if infomap is not None else {}
+    def __init__(self, infomap):
+        self.map = infomap #if infomap is not None else {}
+
+    def getMap(self):
+        return self.map
 
     def add_service_entry(self, service_name, service_entry):
         self.map[service_name] = service_entry

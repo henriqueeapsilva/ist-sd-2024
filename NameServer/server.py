@@ -14,9 +14,9 @@ if __name__ == '__main__':
         print("Received arguments:")
         for i in range(1, len(sys.argv)):
             print("  " + sys.argv[i])
-
+        infoMap = {}
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        add_NameServerServicer_to_server(NamingServerServiceImpl(), server)
+        add_NameServerServicer_to_server(NamingServerServiceImpl(infoMap), server)
         server.add_insecure_port('[::]:'+ str(PORT))
         server.start()
 

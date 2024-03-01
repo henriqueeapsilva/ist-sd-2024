@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.tuplespaces.server;
 
 import io.grpc.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerGrpc;
+import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass;
+
 import java.io.IOException;
 
 public class ServerMain {
@@ -23,16 +25,21 @@ public class ServerMain {
             System.err.printf("Usage: java %s port%n", ServerMain.class.getName());
         }
 
-        final int port = Integer.parseInt(args[0]);
+        final int port = Integer.parseInt(args[1]);
         final BindableService impl = new ServerServiceImp();
+        final String service = args[3];
+        final String qualifier = args[2];
 
         // Create a new server to listen on port
         Server server = ServerBuilder.forPort(port).addService(impl).build();
 
         // Register on NamingServer
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5001).usePlaintext().build();
-
+        String target = "localhost" + ":" + "5001";
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
+        NameServerOuterClass.registerResponse response = stub.register(NameServerOuterClass.registerRequest.newBuilder()
+                .setName(service).setQualifier(qualifier).setAddress(target).build());
+
 
         // Start the server
         server.start();

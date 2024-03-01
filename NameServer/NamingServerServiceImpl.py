@@ -19,10 +19,13 @@ class NamingServerServiceImpl(NameServerServicer):
         name = request.name
         qualifier = request.qualifier
         address = request.address
-
+        print("name: ", name)
+        print("qualifier: ", qualifier)
+        print("address: ", address)
         try:
             # Add the server to the service entry in the naming server
             self.naming_server.add_server_to_service(name, ServerEntry(address, qualifier))
+            print("teste")
             return registerResponse()
         except Exception as e:
             # Unable to register the server
