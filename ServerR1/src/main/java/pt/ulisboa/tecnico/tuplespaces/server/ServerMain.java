@@ -27,8 +27,8 @@ public class ServerMain {
 
         final int port = Integer.parseInt(args[1]);
         final BindableService impl = new ServerServiceImp();
-        final String service = args[3];
         final String qualifier = args[2];
+        final String service = args[3];
 
         // Create a new server to listen on port
         Server server = ServerBuilder.forPort(port).addService(impl).build();
@@ -49,13 +49,15 @@ public class ServerMain {
         // Server threads are running in the background.
         System.err.println("Server started");
 
-        // Do not exit the main thread. Wait until server is terminated.
+        // Handle Ctrl + C
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Delete server from NameServer
+            NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
+                    .setServicename(service).setAddress(target).build());
+            System.out.println("deleteResponse");
+            server.shutdownNow();
+        }));
         server.awaitTermination();
-        System.out.println("terminou");
-
-        //Delete server from NameServer
-        NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
-                .setServicename(service).setAddress(target).build());
     }
 }
 

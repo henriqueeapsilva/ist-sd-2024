@@ -23,7 +23,7 @@ class NamingServerServiceImpl(NameServerServicer):
 
             self.naming_server.add_server_to_service(name, ServerEntry(address, qualifier))
 
-            return pb2.registerResponse(message="Server register successfully")
+            return pb2.registerResponse(message="")
         except Exception as e:
             # Unable to register the server
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -53,20 +53,21 @@ class NamingServerServiceImpl(NameServerServicer):
             # Service does not exist
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Service does not exist.")
-            return pb2.deleteResponse()
+            return
 
         service_entry = self.naming_server.map[service_name]
         if server_address not in [entry.address for entry in service_entry.serverEntries]:
             # Server not found in the service
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Server not found in the service.")
-            return pb2.deleteResponse()
+            return
 
         # Try to remove the server from the service entry
         try:
             self.naming_server.remove_server_from_service(service_name, server_address)
+            print(self.naming_server.getMap())
             # Return an empty response indicating successful deletion
-            return pb2.deleteResponse()
+            return pb2.deleteResponse(response="")
         except Exception as e:
             # Unable to remove the server
             context.set_code(grpc.StatusCode.INTERNAL)

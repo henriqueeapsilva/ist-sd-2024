@@ -20,7 +20,7 @@ class ServiceEntry:
 
 class NamingServer:
     def __init__(self, infomap):
-        self.map = infomap  # if infomap is not None else {}
+        self.map = infomap
 
     def getMap(self):
         return self.map
