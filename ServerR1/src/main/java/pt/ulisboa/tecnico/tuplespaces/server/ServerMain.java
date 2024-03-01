@@ -49,6 +49,10 @@ public class ServerMain {
 
         // Do not exit the main thread. Wait until server is terminated.
         server.awaitTermination();
+
+        //Delete server from NameServer
+        NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()
+                .setServicename(service).setAddress(target).setAddress(target).build());
     }
 }
 

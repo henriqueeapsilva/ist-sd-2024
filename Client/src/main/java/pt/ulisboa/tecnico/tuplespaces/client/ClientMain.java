@@ -27,21 +27,37 @@ public class ClientMain {
         // get the host and the port
         final String host = args[0];
         final String port = args[1];
-        final String qualifier = args[2];
-        final String service = args[3];
+        final String service = args[2];
 
-        String target = "localhost" + ":" + "5001";
+        String target = host + ":" + port;
 
         //Get serverAddress from NamingServer
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
         NameServerOuterClass.lookupResponse response = stub.lookup(NameServerOuterClass.lookupRequest.newBuilder()
-                .setService(service).setQualifier(qualifier).build());
-        System.out.println(response);
+                .setService(service).setQualifier("A").build());
 
-        CommandProcessor parser = new CommandProcessor(new ClientService());
-        parser.parseInput(host, port);
+        System.out.println("chegou aqui");
+        //get the host and port from the address
+        String[] servers = response.getServersList().toArray(new String[0]);
+        for (String server: servers){
+            System.out.println(server);
+        }
+        System.out.println("chegou aqui 2");
+        if (servers.length > 0) {
+            String server = servers[0];
+            String[] parts = server.split(":");
+
+            String serverHost = parts[0];
+            String serverPort = parts[1];
+
+            CommandProcessor parser = new CommandProcessor(new ClientService());
+            parser.parseInput(serverHost, serverPort);
+        }
+        System.out.println("chegou aqui 3");
+        //CommandProcessor parser = new CommandProcessor(new ClientService());
+        //parser.parseInput(host, port);
 
     }
 }

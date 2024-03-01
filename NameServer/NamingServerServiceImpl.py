@@ -35,10 +35,12 @@ class NamingServerServiceImpl(NameServerServicer):
 
 
     def lookup(self, request, context):
+        print("lookup")
         service = request.service
-        qualifier = request.qualifier if hasattr(request, 'qualifier') else None
+        qualifier = request.qualifier if hasattr(request, "A") else None
 
         if service not in self.naming_server.map:
+            print("vazio")
             return lookupResponse(servers=[])
 
         service_entry = self.naming_server.map[service]
