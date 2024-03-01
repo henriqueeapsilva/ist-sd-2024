@@ -11,7 +11,6 @@ public class ClientMain {
 
         System.err.println(ClientMain.class.getSimpleName());
 
-
         // receive and print arguments
         System.err.printf("Received %d arguments%n", args.length);
         for (int i = 0; i < args.length; i++) {
@@ -31,7 +30,7 @@ public class ClientMain {
 
         String target = host + ":" + port;
 
-        //Get serverAddress from NamingServer
+        //Get serverAddress from naming server
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 

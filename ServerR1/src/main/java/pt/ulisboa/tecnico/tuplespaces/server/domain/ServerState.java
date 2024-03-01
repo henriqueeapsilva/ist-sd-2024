@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 public class ServerState {
 
@@ -17,12 +16,14 @@ public class ServerState {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }
 
-  public synchronized void put(String tuple) {
+  public void put(String tuple) {
     if (isValidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
-    tuples.add(tuple);
-    notifyAll();
+    synchronized (this) {
+      tuples.add(tuple);
+      notifyAll();
+    }
   }
 
   private String getMatchingTuple(String pattern) {
@@ -34,18 +35,20 @@ public class ServerState {
     return null;
   }
 
-  private synchronized String waitForMatchingTuple(String pattern, boolean removeAfter) {
+  private String waitForMatchingTuple(String pattern, boolean removeAfter) {
     String matchingTuple = getMatchingTuple(pattern);
-    while (matchingTuple == null) {
-      try {
-        wait(); // wait until a tuple is added
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
+    synchronized (this) {
+      while (matchingTuple == null) {
+        try {
+          wait(); // wait until a tuple is added
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
+        matchingTuple = getMatchingTuple(pattern);
       }
-      matchingTuple = getMatchingTuple(pattern);
-    }
-    if (removeAfter) {
-      tuples.remove(matchingTuple);
+      if (removeAfter) {
+        tuples.remove(matchingTuple);
+      }
     }
     return matchingTuple;
   }
@@ -64,7 +67,7 @@ public class ServerState {
     return waitForMatchingTuple(pattern, true);
   }
 
-  public List<String> getTupleSpacesState() {
+  public synchronized List<String> getTupleSpacesState() {
     return new ArrayList<>(tuples);
   }
 }

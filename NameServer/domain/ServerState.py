@@ -4,6 +4,7 @@ class ServerEntry:
         self.address = address
         self.qualifier = qualifier
 
+
 class ServiceEntry:
 
     def __init__(self, name, entries=None):

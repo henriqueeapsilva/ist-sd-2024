@@ -42,11 +42,8 @@ public class ServerMain {
         NameServerOuterClass.registerResponse response = stub.register(NameServerOuterClass.registerRequest.newBuilder()
                 .setName(service).setQualifier(qualifier).setAddress(target).build());
 
-        System.out.println(response);
-        // Start the server
         server.start();
 
-        // Server threads are running in the background.
         System.err.println("Server started");
 
         // Handle Ctrl + C

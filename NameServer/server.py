@@ -1,8 +1,6 @@
-import sys
 import grpc
 from concurrent import futures
 from NamingServerServiceImpl import NamingServerServiceImpl
-import NameServer_pb2 as pb2
 from NameServer_pb2_grpc import add_NameServerServicer_to_server
 
 # define the port

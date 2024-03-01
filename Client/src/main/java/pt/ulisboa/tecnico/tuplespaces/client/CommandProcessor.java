@@ -71,28 +71,20 @@ public class CommandProcessor {
     }
 
     private void put(String[] split){
-
-        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
-        
-        // get the tuple
         String tuple = split[1];
 
         System.out.println(clientService.put(tuple) + "\n");
-
     }
 
     private void read(String[] split){
-        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
-
-        // get the tuple
         String tuple = split[1];
 
         System.out.println("OK\n" + clientService.read(tuple) + "\n");
@@ -100,29 +92,23 @@ public class CommandProcessor {
 
 
     private void take(String[] split){
-         // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
-
-        // get the tuple
         String tuple = split[1];
 
         System.out.println("OK\n" + clientService.take(tuple) + "\n");
     }
 
     private void getTupleSpacesState(String[] split){
-
         if (split.length != 2){
             this.printUsage();
             return;
         }
         String qualifier = split[1];
 
-        // get the tuple spaces state
         System.out.println("OK\n" + clientService.getTupleSpacesState() + "\n");
-
     }
 
     private void sleep(String[] split) {

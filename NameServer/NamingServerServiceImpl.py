@@ -1,5 +1,3 @@
-import sys
-
 import grpc
 
 from NameServer_pb2_grpc import NameServerServicer

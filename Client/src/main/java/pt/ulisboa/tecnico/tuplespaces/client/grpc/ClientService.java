@@ -5,7 +5,6 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.*;
 
 import java.util.List;
 
@@ -16,9 +15,6 @@ public class ClientService {
     private TupleSpacesBlockingStub stub;
     private ManagedChannel channel;
 
-    /*TODO: The gRPC client-side logic should be here.
-          This should include a method that builds a channel and stub,
-          as well as individual methods for each remote operation of this service. */
     public void createMainStub(String host, String port) {
         final String target = host + ":" + port;
 

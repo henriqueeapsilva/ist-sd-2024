@@ -8,14 +8,13 @@ import pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
 
 public class
 ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
-    private ServerState tuplespaces = new ServerState();
+    private final ServerState tuplespaces = new ServerState();
 
     @Override
     public void put(PutRequest request, StreamObserver<PutResponse> responseObserver) {
         try {
             String newTuple = request.getNewTuple();
 
-            // Adds the tuple to the ServerState
             tuplespaces.put(newTuple);
 
             // If the Response as no args, it serves as a placeholder to maintain the consistency of our service API.
@@ -25,6 +24,7 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
             responseObserver.onNext(response);
             // Notify the client that the operation has been completed.
             responseObserver.onCompleted();
+
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple format!").asRuntimeException());
         }
@@ -37,10 +37,9 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
 
             ReadResponse response = ReadResponse.newBuilder().setResult(tuplespaces.read(searchPattern)).build();
 
-            // Send a single response through the stream.
             responseObserver.onNext(response);
-            // Notify the client that the operation has been completed.
             responseObserver.onCompleted();
+
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple format!").asRuntimeException());
         }
@@ -53,10 +52,9 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
 
             TakeResponse response = TakeResponse.newBuilder().setResult(tuplespaces.take(searchPattern)).build();
 
-            // Send a single response through the stream.
             responseObserver.onNext(response);
-            // Notify the client that the operation has been completed.
             responseObserver.onCompleted();
+
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple format!").asRuntimeException());
         }
@@ -67,9 +65,7 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
 
         getTupleSpacesStateResponse response = getTupleSpacesStateResponse.newBuilder().addAllTuple(tuplespaces.getTupleSpacesState()).build();
 
-        // Send a single response through the stream.
         responseObserver.onNext(response);
-        // Notify the client that the operation has been completed.
         responseObserver.onCompleted();
     }
 }
