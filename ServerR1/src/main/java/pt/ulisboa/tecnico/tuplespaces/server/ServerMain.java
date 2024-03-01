@@ -36,7 +36,7 @@ public class ServerMain {
         // Register on NamingServer
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5001).usePlaintext().build();
 
-        String target = "localhost:5001";
+        String target = "localhost:2001";
 
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
         NameServerOuterClass.registerResponse response = stub.register(NameServerOuterClass.registerRequest.newBuilder()
@@ -51,6 +51,7 @@ public class ServerMain {
 
         // Do not exit the main thread. Wait until server is terminated.
         server.awaitTermination();
+        System.out.println("terminou");
 
         //Delete server from NameServer
         NameServerOuterClass.deleteResponse deleteResponse = stub.delete(NameServerOuterClass.deleteRequest.newBuilder()

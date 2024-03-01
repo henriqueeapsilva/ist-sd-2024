@@ -16,9 +16,6 @@ class NamingServerServiceImpl(NameServerServicer):
         name = request.name
         qualifier = request.qualifier
         address = request.address
-        print("name: ", name)
-        print("qualifier: ", qualifier)
-        print("address: ", address)
         try:
             if name not in self.naming_server.map:
                 service_entry = ServiceEntry(name)
@@ -41,7 +38,7 @@ class NamingServerServiceImpl(NameServerServicer):
             return pb2.lookupResponse(servers=[])
 
         service_entry = self.naming_server.map[service]
-        if qualifier is None:
+        if qualifier is None or qualifier == "":
             servers = [entry.address for entry in service_entry.serverEntries]
         else:
             servers = [entry.address for entry in service_entry.serverEntries if entry.qualifier == qualifier]

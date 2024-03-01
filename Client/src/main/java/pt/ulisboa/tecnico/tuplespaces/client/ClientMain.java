@@ -37,12 +37,7 @@ public class ClientMain {
 
         try {
             NameServerOuterClass.lookupResponse response = stub.lookup(NameServerOuterClass.lookupRequest.newBuilder()
-                    .setService(service).build());
-
-            // Print possible servers
-            for (String server : response.getServersList()) {
-                System.out.println("Server: " + server);
-            }
+                    .setService(service).setQualifier("A").build());
 
             // Perform further processing based on retrieved servers if needed
             if (!response.getServersList().isEmpty()) {
@@ -55,14 +50,13 @@ public class ClientMain {
 
                     // Perform any additional processing with the server host and port
                     System.out.println("Processing server: " + serverHost + ":" + serverPort);
+                    CommandProcessor parser = new CommandProcessor(new ClientService());
+                    parser.parseInput(serverHost, serverPort);
                 }
             }
         } catch (Exception e) {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
-        System.out.println("chegou aqui 3");
-        //CommandProcessor parser = new CommandProcessor(new ClientService());
-        //parser.parseInput(host, port);
 
     }
 }
