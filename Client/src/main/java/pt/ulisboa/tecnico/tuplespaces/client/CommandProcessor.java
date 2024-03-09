@@ -23,17 +23,16 @@ public class CommandProcessor {
         this.clientService = clientService;
     }
 
-    void parseInput(String host, String port) {
+    void parseInput() {
 
         Scanner scanner = new Scanner(System.in);
-        clientService.createMainStub(host, port);
         boolean exit = false;
 
         while (!exit) {
             System.out.print("> ");
             String line = scanner.nextLine().trim();
             String[] split = line.split(SPACE);
-             switch (split[0]) {
+            switch (split[0]) {
                 case PUT:
                     this.put(split);
                     break;
@@ -60,97 +59,116 @@ public class CommandProcessor {
 
                 case EXIT:
                     exit = true;
-                    clientService.closeChannel();
                     break;
 
                 default:
                     this.printUsage();
                     break;
-             }
+            }
         }
+        scanner.close();
     }
 
     private void put(String[] split){
+
+        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
+
+        // get the tuple
         String tuple = split[1];
 
-        System.out.println(clientService.put(tuple) + "\n");
+        // put the tuple
+        System.out.println("TODO: implement put command");
+
     }
 
     private void read(String[] split){
+        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
+
+        // get the tuple
         String tuple = split[1];
 
-        System.out.println("OK\n" + clientService.read(tuple) + "\n");
+        // read the tuple
+        System.out.println("TODO: implement read command");
     }
 
 
     private void take(String[] split){
+        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
+
+        // get the tuple
         String tuple = split[1];
 
-        System.out.println("OK\n" + clientService.take(tuple) + "\n");
+        // take the tuple
+        System.out.println("TODO: implement take command");
     }
 
     private void getTupleSpacesState(String[] split){
+
         if (split.length != 2){
             this.printUsage();
             return;
         }
         String qualifier = split[1];
 
-        System.out.println("OK\n" + clientService.getTupleSpacesState() + "\n");
+        // get the tuple spaces state
+        System.out.println("TODO: implement getTupleSpacesState command");
+
     }
 
     private void sleep(String[] split) {
-      if (split.length != 2){
-        this.printUsage();
-        return;
-      }
-      Integer time;
+        if (split.length != 2){
+            this.printUsage();
+            return;
+        }
+        Integer time;
 
-      // checks if input String can be parsed as an Integer
-      try {
-         time = Integer.parseInt(split[1]);
-      } catch (NumberFormatException e) {
-        this.printUsage();
-        return;
-      }
+        // checks if input String can be parsed as an Integer
+        try {
+            time = Integer.parseInt(split[1]);
+        } catch (NumberFormatException e) {
+            this.printUsage();
+            return;
+        }
 
-      try {
-        Thread.sleep(time*1000);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
-      }
+        try {
+            Thread.sleep(time*1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setdelay(String[] split) {
-      if (split.length != 3){
-        this.printUsage();
-        return;
-      }
-      String qualifier = split[1];
-      Integer time;
+        if (split.length != 3){
+            this.printUsage();
+            return;
+        }
+        int qualifier = indexOfServerQualifier(split[1]);
+        if (qualifier == -1)
+            System.out.println("Invalid server qualifier");
 
-      // checks if input String can be parsed as an Integer
-      try {
-        time = Integer.parseInt(split[2]);
-      } catch (NumberFormatException e) {
-        this.printUsage();
-        return;
-      }
+        Integer time;
 
-      // register delay <time> for when calling server <qualifier>
-      System.out.println("TODO: implement setdelay command (only needed in phases 2+3)");
+        // checks if input String can be parsed as an Integer
+        try {
+            time = Integer.parseInt(split[2]);
+        } catch (NumberFormatException e) {
+            this.printUsage();
+            return;
+        }
+        // register delay <time> for when calling server <qualifier>
+        this.clientService.setDelay(qualifier, time);
     }
 
     private void printUsage() {
@@ -164,15 +182,28 @@ public class CommandProcessor {
                 "- exit\n");
     }
 
+    private int indexOfServerQualifier(String qualifier) {
+        switch (qualifier) {
+            case "A":
+                return 0;
+            case "B":
+                return 1;
+            case "C":
+                return 2;
+            default:
+                return -1;
+        }
+    }
+
     private boolean inputIsValid(String[] input){
-        if (input.length < 2 
-            ||
-            !input[1].substring(0,1).equals(BGN_TUPLE) 
-            || 
-            !input[1].endsWith(END_TUPLE)
-            || 
-            input.length > 2
-            ) {
+        if (input.length < 2
+                ||
+                !input[1].substring(0,1).equals(BGN_TUPLE)
+                ||
+                !input[1].endsWith(END_TUPLE)
+                ||
+                input.length > 2
+        ) {
             this.printUsage();
             return false;
         }

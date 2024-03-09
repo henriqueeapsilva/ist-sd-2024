@@ -7,6 +7,7 @@ import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 public class ClientMain {
+    static final int numServers = 3;
     public static void main(String[] args) {
 
         System.err.println(ClientMain.class.getSimpleName());
@@ -49,8 +50,8 @@ public class ClientMain {
 
                     // Perform any additional processing with the server host and port
                     System.out.println("Processing server: " + serverHost + ":" + serverPort);
-                    CommandProcessor parser = new CommandProcessor(new ClientService());
-                    parser.parseInput(serverHost, serverPort);
+                    CommandProcessor parser = new CommandProcessor(new ClientService(ClientMain.numServers));
+                    // TODO parser.parseInput(serverHost, serverPort);
                 }
             }
         } catch (Exception e) {
