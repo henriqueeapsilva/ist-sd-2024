@@ -1,21 +1,38 @@
 package pt.ulisboa.tecnico.tuplespaces.client.grpc;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import pt.ulisboa.tecnico.tuplespaces.client.util.OrderedDelayer;
+
+import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
+import java.util.ArrayList;
 
 public class ClientService {
 
     /* TODO: This class should implement the front-end of the replicated TupleSpaces service
         (according to the Xu-Liskov algorithm)*/
 
+    private TupleSpacesReplicaStub[] stubs;
     OrderedDelayer delayer;
 
     public ClientService(int numServers) {
 
-        /* TODO: create channel/stub for each server */
-
         /* The delayer can be used to inject delays to the sending of requests to the
             different servers, according to the per-server delays that have been set  */
         delayer = new OrderedDelayer(numServers);
+        this.stubs = new TupleSpacesReplicaStub[numServers];
+    }
+    public void createStubs(ArrayList<String> servers) {
+        int i = 0;
+        for (String address: servers){
+            System.out.println("entrou");
+            ManagedChannel channel =  ManagedChannelBuilder.forTarget(address).usePlaintext().build();
+            System.out.println(channel);
+            stubs[i] = newStub(channel);
+            System.out.println(stubs[i]);
+            i++;
+        }
+
     }
 
     /* This method allows the command processor to set the request delay assigned to a given server */

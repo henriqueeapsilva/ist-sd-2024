@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.tuplespaces.client;
 
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class CommandProcessor {
@@ -23,10 +24,11 @@ public class CommandProcessor {
         this.clientService = clientService;
     }
 
-    void parseInput() {
+    void parseInput(ArrayList<String> servers) {
 
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
+        clientService.createStubs(servers);
 
         while (!exit) {
             System.out.print("> ");

@@ -4,6 +4,8 @@ class ServerEntry:
         self.address = address
         self.qualifier = qualifier
 
+    def __str__(self):
+        return f"<ServerEntry(address={self.address}, qualifier={self.qualifier})>"
 
 class ServiceEntry:
 
@@ -20,6 +22,9 @@ class ServiceEntry:
     def get_server_entries(self):
         return self.serverEntries
 
+    def __str__(self):
+        servers_info = ', '.join(str(server) for server in self.serverEntries)
+        return f"ServiceEntry(name={self.serviceName}, serverEntries=[{servers_info}])"
 
 class NamingServer:
     def __init__(self, infomap):
