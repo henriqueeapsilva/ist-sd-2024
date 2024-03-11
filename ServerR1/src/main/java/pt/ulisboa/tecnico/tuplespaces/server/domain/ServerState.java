@@ -3,12 +3,13 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class ServerState {
 
-  private List<String> tuples;
+  private List<Tuple> tuples;
 
   public ServerState() {
-    this.tuples = new ArrayList<String>();
+    this.tuples = new ArrayList<>();
 
   }
 
@@ -17,26 +18,28 @@ public class ServerState {
   }
 
   public void put(String tuple) {
+    Tuple newTuple = new Tuple(tuple);
+
     if (isValidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
     synchronized (this) {
-      tuples.add(tuple);
+      tuples.add(newTuple);
       notifyAll();
     }
   }
 
-  private String getMatchingTuple(String pattern) {
-    for (String tuple : this.tuples) {
-      if (tuple.matches(pattern)) {
-        return tuple;
+  private Tuple getMatchingTuple(String pattern) {
+    for (Tuple tuple : this.tuples) {
+      if (tuple.getField().matches(pattern)) {
+          return tuple;
       }
     }
     return null;
   }
 
   private String waitForMatchingTuple(String pattern, boolean removeAfter) {
-    String matchingTuple = getMatchingTuple(pattern);
+    Tuple matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {
       while (matchingTuple == null) {
         try {
@@ -50,7 +53,7 @@ public class ServerState {
         tuples.remove(matchingTuple);
       }
     }
-    return matchingTuple;
+    return matchingTuple.getField();
   }
 
   public String read(String pattern) {
@@ -68,6 +71,10 @@ public class ServerState {
   }
 
   public synchronized List<String> getTupleSpacesState() {
-    return new ArrayList<>(tuples);
+    List<String> tupleSpaces = new ArrayList<>();
+    for (Tuple tuple : this.tuples) {
+      tupleSpaces.add(tuple.getField());
+    }
+    return tupleSpaces;
   }
 }
