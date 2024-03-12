@@ -13,14 +13,14 @@ public class ServerState {
 
   }
 
-  public boolean isValidTuple(String tuple) {
+  public boolean isInvalidTuple(String tuple) {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }
 
   public void put(String tuple) {
     Tuple newTuple = new Tuple(tuple);
 
-    if (isValidTuple(tuple)) {
+    if (isInvalidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
     synchronized (this) {
@@ -57,14 +57,14 @@ public class ServerState {
   }
 
   public String read(String pattern) {
-    if (isValidTuple(pattern)) {
+    if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
     return waitForMatchingTuple(pattern, false);
   }
 
   public String take(String pattern) {
-    if (isValidTuple(pattern)) {
+    if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
     return waitForMatchingTuple(pattern, true);
