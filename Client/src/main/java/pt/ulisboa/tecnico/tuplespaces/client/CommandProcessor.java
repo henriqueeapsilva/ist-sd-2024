@@ -82,8 +82,8 @@ public class CommandProcessor {
         // get the tuple
         String tuple = split[1];
 
-        // put the tuple
-        System.out.println("TODO: implement put command");
+        // put the tuple and checks result for operation
+        System.out.println(clientService.putOperation(tuple));
 
     }
 

@@ -9,7 +9,7 @@ import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 import java.util.ArrayList;
 
 public class ClientMain {
-    static final int numServers = 3;
+    static int numServers = 0;
     public static void main(String[] args) {
 
         System.err.println(ClientMain.class.getSimpleName());
@@ -37,14 +37,17 @@ public class ClientMain {
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
-        ArrayList<String> servers = new ArrayList<>(); //ArrayList to register the servers hostname and ports
-        try {
+        //ArrayList to register the servers hostname and ports
+        ArrayList<String> servers = new ArrayList<>();
+
+        try { // getting all the servers addresses
             lookupResponse response = stub.lookup(lookupRequest.newBuilder()
                     .setService(service).build());
-            if (!response.getServersList().isEmpty()) {
+            numServers = response.getServersList().size();
+            if (numServers != 0) {
                 String address;
-                String[] parts;
-                for (int i = 0; i < numServers; i++) {
+
+                for (int i = 0; i < numServers; i++ ){
                     address = response.getServers(i);
                     servers.add(address);
                 }
