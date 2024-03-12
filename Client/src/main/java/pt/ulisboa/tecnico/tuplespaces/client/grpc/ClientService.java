@@ -63,7 +63,6 @@ public class ClientService {
                     .setNewTuple(tuple).build();
             // response collector
             ResponseCollector putRc = new ResponseCollector();
-            // servers that have acknowledged the request
 
             for (Integer id : delayer) {
                 TupleSpacesReplicaStub stub = stubs[id];
@@ -95,8 +94,11 @@ public class ClientService {
                 ReadObserver<TupleSpacesReplicaXuLiskov.ReadResponse> observer = new ReadObserver<>(readRc);
                 stub.read(request, observer);
             }
+
             readRc.waitForFirstResponse();
+
             output = readRc.getFirstResponse();
+
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
             return status.getDescription();
@@ -104,11 +106,6 @@ public class ClientService {
             throw new RuntimeException(e);
         }
         return "OK\n" + output;
-    }
-
-
-    public void readMulticast(){
-
     }
 
     public void takeMulticast(){
