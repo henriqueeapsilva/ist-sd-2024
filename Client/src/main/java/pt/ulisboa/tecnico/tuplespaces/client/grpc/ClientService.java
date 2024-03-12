@@ -4,60 +4,103 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
+import pt.ulisboa.tecnico.tuplespaces.client.observers.*;
+import pt.ulisboa.tecnico.tuplespaces.client.util.OrderedDelayer;
+import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov;
 
-import java.util.List;
-
-import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc.*;
+import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
+import java.util.ArrayList;
 
 public class ClientService {
 
-    private TupleSpacesBlockingStub stub;
-    private ManagedChannel channel;
+    private TupleSpacesReplicaStub[] stubs;
+    OrderedDelayer delayer;
 
-    public void createMainStub(String host, String port) {
-        final String target = host + ":" + port;
+    private final int numServers;
 
-        this.channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
-        this.stub = newBlockingStub(this.channel);
+    public ClientService(int numServers) {
+
+        /* The delayer can be used to inject delays to the sending of requests to the
+            different servers, according to the per-server delays that have been set  */
+        delayer = new OrderedDelayer(numServers);
+        this.stubs = new TupleSpacesReplicaStub[numServers];
+        this.numServers = numServers;
     }
 
-    public String put(String tuple) {
-        try {
-            stub.put(PutRequest.newBuilder().setNewTuple(tuple).build());
-            return "OK";
-        } catch (StatusRuntimeException e) {
-            Status status = e.getStatus();
-            return status.getDescription();
+    public void createStubs(ArrayList<String> servers) {
+        int i = 0;
+        for (String address: servers){
+            // creating channel for the stub
+            ManagedChannel channel =  ManagedChannelBuilder.forTarget(address).usePlaintext().build();
+            // creating the stub for each server (replica)
+            stubs[i] = newStub(channel);
+            i++;
         }
     }
 
-    public String read(String tuple) {
-        try {
-            ReadResponse result = stub.read(ReadRequest.newBuilder().setSearchPattern(tuple).build());
-            return result.getResult();
-        } catch (StatusRuntimeException e) {
-            Status status = e.getStatus();
-            return status.getDescription();
+    /* This method allows the command processor to set the request delay assigned to a given server */
+    public void setDelay(int id, int delay) {
+        delayer.setDelay(id, delay);
+
+        /* TODO: Remove this debug snippet */
+        System.out.println("[Debug only]: After setting the delay, I'll test it");
+        for (Integer i : delayer) {
+            System.out.println("[Debug only]: Now I can send request to stub[" + i + "]");
         }
+        System.out.println("[Debug only]: Done.");
     }
 
-    public String take(String tuple) {
+    // multicast communication from the client (worker) to all the servers (replicas)
+    public String putOperation(String tuple) {
         try {
-            TakeResponse result = stub.take(TakeRequest.newBuilder().setSearchPattern(tuple).build());
-            return result.getResult();
-        } catch (StatusRuntimeException e) {
+            // request
+            TupleSpacesReplicaXuLiskov.PutRequest request = TupleSpacesReplicaXuLiskov.PutRequest.newBuilder()
+                    .setNewTuple(tuple).build();
+            // response collector
+            ResponseCollector putRc = new ResponseCollector();
+
+            for (Integer id : delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                PutObserver<TupleSpacesReplicaXuLiskov.PutResponse> observer = new PutObserver<>(putRc);
+                stub.put(request, observer);
+            }
+
+            putRc.waitUntilAllReceived(numServers);
+
+        } catch (StatusRuntimeException e){
             Status status = e.getStatus();
             return status.getDescription();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+        return "OK";
     }
 
-    public List<String> getTupleSpacesState() {
-        getTupleSpacesStateResponse tuple = stub.getTupleSpacesState(getTupleSpacesStateRequest.getDefaultInstance());
-        return tuple.getTupleList();
+    public String readOperation(String tuple) {
+        String output;
+        try {
+            TupleSpacesReplicaXuLiskov.ReadRequest request = TupleSpacesReplicaXuLiskov.ReadRequest.newBuilder()
+                    .setSearchPattern(tuple).build();
+
+            ResponseCollector readRc = new ResponseCollector();
+
+            for (Integer id: delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                ReadObserver<TupleSpacesReplicaXuLiskov.ReadResponse> observer = new ReadObserver<>(readRc);
+                stub.read(request, observer);
+            }
+
+            readRc.waitForFirstResponse();
+
+            output = readRc.getFirstResponse();
+
+        } catch (StatusRuntimeException e){
+            Status status = e.getStatus();
+            return status.getDescription();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "OK\n" + output;
     }
-    public void closeChannel() {
-        this.channel.shutdownNow();
-    }
+
 }
-

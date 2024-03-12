@@ -9,7 +9,7 @@ PORT = 5001
 if __name__ == '__main__':
     try:
         infoMap = {}
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=3))
         add_NameServerServicer_to_server(NamingServerServiceImpl(infoMap), server)
         server.add_insecure_port('[::]:' + str(PORT))
         server.start()

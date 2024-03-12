@@ -3,10 +3,13 @@ package pt.ulisboa.tecnico.tuplespaces.client;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerGrpc;
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass;
+import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass.*;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
+import java.util.ArrayList;
+
 public class ClientMain {
+    static int numServers = 0;
     public static void main(String[] args) {
 
         System.err.println(ClientMain.class.getSimpleName());
@@ -30,32 +33,29 @@ public class ClientMain {
 
         String target = host + ":" + port;
 
-        //Get serverAddress from naming server
+        //Get the serve addresses from naming server
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
-        try {
-            NameServerOuterClass.lookupResponse response = stub.lookup(NameServerOuterClass.lookupRequest.newBuilder()
-                    .setService(service).setQualifier("A").build());
+        //ArrayList to register the servers hostname and ports
+        ArrayList<String> servers = new ArrayList<>();
 
-            // Perform further processing based on retrieved servers if needed
-            if (!response.getServersList().isEmpty()) {
-                // Assuming the first server in the list
-                String firstServer = response.getServers(0);
-                String[] parts = firstServer.split(":");
-                if (parts.length == 2) {
-                    String serverHost = parts[0];
-                    String serverPort = parts[1];
+        try { // getting all the servers addresses
+            lookupResponse response = stub.lookup(lookupRequest.newBuilder()
+                    .setService(service).build());
+            numServers = response.getServersList().size();
+            if (numServers != 0) {
+                String address;
 
-                    // Perform any additional processing with the server host and port
-                    System.out.println("Processing server: " + serverHost + ":" + serverPort);
-                    CommandProcessor parser = new CommandProcessor(new ClientService());
-                    parser.parseInput(serverHost, serverPort);
+                for (int i = 0; i < numServers; i++ ){
+                    address = response.getServers(i);
+                    servers.add(address);
                 }
             }
         } catch (Exception e) {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
-
+        CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
+        parser.parseInput(servers);
     }
 }
