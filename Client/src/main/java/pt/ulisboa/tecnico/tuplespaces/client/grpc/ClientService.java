@@ -4,16 +4,12 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import pt.ulisboa.tecnico.tuplespaces.client.PutObserver;
-import pt.ulisboa.tecnico.tuplespaces.client.ResponseCollector;
+import pt.ulisboa.tecnico.tuplespaces.client.observers.*;
 import pt.ulisboa.tecnico.tuplespaces.client.util.OrderedDelayer;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov;
 
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.Executors;
-
 
 public class ClientService {
 
@@ -63,7 +59,8 @@ public class ClientService {
     public String putOperation(String tuple) {
         try {
             // request
-            TupleSpacesReplicaXuLiskov.PutRequest request = TupleSpacesReplicaXuLiskov.PutRequest.newBuilder().setNewTuple(tuple).build();
+            TupleSpacesReplicaXuLiskov.PutRequest request = TupleSpacesReplicaXuLiskov.PutRequest.newBuilder()
+                    .setNewTuple(tuple).build();
             // response collector
             ResponseCollector putRc = new ResponseCollector();
             // servers that have acknowledged the request
@@ -82,7 +79,31 @@ public class ClientService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return "Operation Successful \n";
+        return "OK";
+    }
+
+    public String readOperation(String tuple) {
+        String output;
+        try {
+            TupleSpacesReplicaXuLiskov.ReadRequest request = TupleSpacesReplicaXuLiskov.ReadRequest.newBuilder()
+                    .setSearchPattern(tuple).build();
+
+            ResponseCollector readRc = new ResponseCollector();
+
+            for (Integer id: delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                ReadObserver<TupleSpacesReplicaXuLiskov.ReadResponse> observer = new ReadObserver<>(readRc);
+                stub.read(request, observer);
+            }
+            readRc.waitForFirstResponse();
+            output = readRc.getFirstResponse();
+        } catch (StatusRuntimeException e){
+            Status status = e.getStatus();
+            return status.getDescription();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "OK\n" + output;
     }
 
 

@@ -1,20 +1,18 @@
-package pt.ulisboa.tecnico.tuplespaces.client;
+package pt.ulisboa.tecnico.tuplespaces.client.observers;
 
 import io.grpc.stub.StreamObserver;
-import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov;
 
-public class PutObserver<R> implements StreamObserver<R> {
+public class ReadObserver<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
 
-
-    public PutObserver(ResponseCollector rc){
+    public ReadObserver(ResponseCollector rc){
         collector = rc;
     }
 
     @Override
     public void onNext(R r) {
-        collector.addString("ack");
+        collector.addString(r.toString());
     }
 
     @Override
@@ -26,5 +24,4 @@ public class PutObserver<R> implements StreamObserver<R> {
     public void onCompleted() {
         // System.out.println("Request completed");
     }
-
 }

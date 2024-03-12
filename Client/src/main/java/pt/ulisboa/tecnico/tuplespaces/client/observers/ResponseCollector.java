@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.tuplespaces.client;
+package pt.ulisboa.tecnico.tuplespaces.client.observers;
 
 import java.util.ArrayList;
 
@@ -16,6 +16,10 @@ public class ResponseCollector {
         }
     }
 
+    public String getFirstResponse() {
+        return collectedResponses.get(0);
+    }
+
     synchronized public String getStrings() {
         synchronized (this) {
             String res = new String();
@@ -29,7 +33,19 @@ public class ResponseCollector {
     synchronized public void waitUntilAllReceived(int n) throws InterruptedException {
         synchronized (this){
             try {
-                if(collectedResponses.size() < n){
+                if (collectedResponses.size() < n){
+                    wait();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    synchronized public void waitForFirstResponse() throws InterruptedException {
+        synchronized (this) {
+            try {
+                if (collectedResponses.size() < 1) {
                     wait();
                 }
             } catch (InterruptedException e) {

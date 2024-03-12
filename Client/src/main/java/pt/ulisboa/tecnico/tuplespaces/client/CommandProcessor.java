@@ -98,7 +98,7 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // read the tuple
-        System.out.println("TODO: implement read command");
+        System.out.println(clientService.readOperation(tuple));
     }
 
 

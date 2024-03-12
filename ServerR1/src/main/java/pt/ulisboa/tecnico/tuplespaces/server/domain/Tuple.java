@@ -15,7 +15,6 @@ public class Tuple {
         return field;
     }
 
-
     public boolean isFlaged() {
         return flag;
     }
