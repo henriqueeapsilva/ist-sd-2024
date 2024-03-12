@@ -13,9 +13,6 @@ import java.util.ArrayList;
 
 public class ClientService {
 
-    /* TODO: This class should implement the front-end of the replicated TupleSpaces service
-        (according to the Xu-Liskov algorithm)*/
-
     private TupleSpacesReplicaStub[] stubs;
     OrderedDelayer delayer;
 
@@ -52,8 +49,6 @@ public class ClientService {
         }
         System.out.println("[Debug only]: Done.");
     }
-
-    /* TODO: individual methods for each remote operation of the TupleSpaces service */
 
     // multicast communication from the client (worker) to all the servers (replicas)
     public String putOperation(String tuple) {
@@ -107,20 +102,5 @@ public class ClientService {
         }
         return "OK\n" + output;
     }
-
-    public void takeMulticast(){
-
-    }
-
-    /* Example: How to use the delayer before sending requests to each server
-     *          Before entering each iteration of this loop, the delayer has already
-     *          slept for the delay associated with server indexed by 'id'.
-     *          id is in the range 0..(numServers-1).
-
-        for (Integer id : delayer) {
-            //stub[id].some_remote_method(some_arguments);
-        }
-
-    */
 
 }
