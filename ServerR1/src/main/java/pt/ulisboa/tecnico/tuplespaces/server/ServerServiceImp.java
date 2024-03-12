@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.tuplespaces.server;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc;
+import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
+import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
 import pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
 
 public class
-ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
+ServerServiceImp extends TupleSpacesReplicaImplBase {
     private final ServerState tuplespaces = new ServerState();
 
     @Override
@@ -46,11 +46,10 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
     }
 
     @Override
-    public void take(TakeRequest request, StreamObserver<TakeResponse> responseObserver) {
+    public void takePhase1(TakePhase1Request request, StreamObserver<TakePhase1Response> responseObserver) {
         try {
-            String searchPattern = request.getSearchPattern();
 
-            TakeResponse response = TakeResponse.newBuilder().setResult(tuplespaces.take(searchPattern)).build();
+            TakePhase1Response response = TakePhase1Response.newBuilder().build();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();

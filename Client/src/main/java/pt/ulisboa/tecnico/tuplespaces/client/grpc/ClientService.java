@@ -33,6 +33,7 @@ public class ClientService {
         this.stubs = new TupleSpacesReplicaStub[numServers];
         this.numServers = numServers;
     }
+
     public void createStubs(ArrayList<String> servers) {
         int i = 0;
         for (String address: servers){
@@ -66,13 +67,15 @@ public class ClientService {
             // response collector
             ResponseCollector putRc = new ResponseCollector();
             // servers that have acknowledged the request
-            ArrayList<Integer> respondedServers = new ArrayList<>();
 
-            // send request if all the servers have not responded - each iteration represents sending a request
-            while (respondedServers.size() < numServers) {
-                sendPutRequests(request, putRc);
-                waitForPutResponses(putRc, respondedServers);
+            for (Integer id : delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                PutObserver<TupleSpacesReplicaXuLiskov.PutResponse> observer = new PutObserver<>(putRc);
+                stub.put(request, observer);
             }
+
+            putRc.waitUntilAllReceived(numServers);
+
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
             return status.getDescription();
@@ -90,52 +93,6 @@ public class ClientService {
     public void takeMulticast(){
 
     }
-
-    public void sendPutRequests(TupleSpacesReplicaXuLiskov.PutRequest request, ResponseCollector putRc) {
-        // Use OrderedDelayer to manage delays for each server
-        Iterator<Integer> delayerIterator = delayer.iterator();
-
-        // sending the request for each server (replica)
-        for (int i = 0; i < numServers; i++) {
-            int serverId = delayerIterator.next();
-
-            // Apply delay for this server
-            int delay = delayer.setDelay(serverId, 1000);
-
-            // sends the request
-            TupleSpacesReplicaStub stub = stubs[serverId];
-            PutObserver<TupleSpacesReplicaXuLiskov.PutResponse> observer = new PutObserver<>(putRc);
-            stub.put(request, observer);
-
-            // handles the timeout corresponding to the delay
-            handleTimeout(delay, stub, request, observer);
-
-        }
-    }
-
-    private void handleTimeout(int delay, TupleSpacesReplicaStub stub, TupleSpacesReplicaXuLiskov.PutRequest request, PutObserver<TupleSpacesReplicaXuLiskov.PutResponse> observer) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                Thread.sleep(delay * 1000);
-                if (!observer.isCompleted()) {
-                    stub.put(request, observer);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public void waitForPutResponses(ResponseCollector putRc, ArrayList<Integer> respondedServers) throws InterruptedException {
-        putRc.waitUntilAllReceived(numServers);
-        // Check which servers have responded
-        for (int i = 0; i < numServers; i++) {
-            if (!respondedServers.contains(i) && putRc.hasReceivedResponseFrom(i)) {
-                respondedServers.add(i);
-            }
-        }
-    }
-
 
     /* Example: How to use the delayer before sending requests to each server
      *          Before entering each iteration of this loop, the delayer has already

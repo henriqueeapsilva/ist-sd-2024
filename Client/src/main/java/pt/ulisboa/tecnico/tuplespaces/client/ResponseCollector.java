@@ -1,15 +1,12 @@
 package pt.ulisboa.tecnico.tuplespaces.client;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class ResponseCollector {
     ArrayList<String> collectedResponses;
-    HashSet<Integer> respondedServers;
 
     public ResponseCollector() {
         collectedResponses = new ArrayList<String>();
-        respondedServers = new HashSet<Integer>();
     }
 
     synchronized public void addString(String s) {
@@ -30,21 +27,15 @@ public class ResponseCollector {
     }
 
     synchronized public void waitUntilAllReceived(int n) throws InterruptedException {
-        synchronized (this) {
-            while (collectedResponses.size() < n)
-                wait();
+        synchronized (this){
+            try {
+                if(collectedResponses.size() < n){
+                    wait();
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    synchronized public boolean hasReceivedResponseFrom(int serverId) {
-        synchronized (this) {
-            return respondedServers.contains(serverId);
-        }
-    }
-
-    synchronized public void markResponseReceivedFrom(int serverId) {
-        synchronized (this) {
-            respondedServers.add(serverId);
-        }
-    }
 }

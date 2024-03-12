@@ -7,7 +7,6 @@ public class PutObserver<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
 
-    private boolean completed = false;
 
     public PutObserver(ResponseCollector rc){
         collector = rc;
@@ -25,11 +24,7 @@ public class PutObserver<R> implements StreamObserver<R> {
 
     @Override
     public void onCompleted() {
-        completed = true;
-        System.out.println("Request completed");
+        // System.out.println("Request completed");
     }
 
-    public boolean isCompleted(){
-        return completed;
-    }
 }
