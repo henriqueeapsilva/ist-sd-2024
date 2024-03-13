@@ -20,8 +20,6 @@ public class ResponseCollector {
         return collectedResponses.get(0);
     }
 
-
-
     synchronized public String getStrings() {
         synchronized (this) {
             String res = new String();
@@ -33,27 +31,28 @@ public class ResponseCollector {
     }
 
     synchronized public void waitUntilAllReceived(int n) throws InterruptedException {
-        synchronized (this){
-            try {
-                if (collectedResponses.size() < n){
-                    wait();
+        synchronized (this) {
+            while (collectedResponses.size() < n) {
+                try {
+                    if (collectedResponses.size() < n) {
+                        wait();
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }
     }
 
     synchronized public void waitForFirstResponse() throws InterruptedException {
         synchronized (this) {
-            try {
-                if (collectedResponses.size() < 1) {
+            while (collectedResponses.size() < 1) {
+                try {
                     wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
         }
     }
-
 }
