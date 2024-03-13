@@ -5,6 +5,9 @@ import io.grpc.stub.StreamObserver;
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
 import pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
+import pt.ulisboa.tecnico.tuplespaces.server.domain.Tuple;
+
+import java.util.ArrayList;
 
 public class
 ServerServiceImp extends TupleSpacesReplicaImplBase {
@@ -48,8 +51,20 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
     @Override
     public void takePhase1(TakePhase1Request request, StreamObserver<TakePhase1Response> responseObserver) {
         try {
+            int clientId = request.getClientId();
+            String searchPattern = request.getSearchPattern();
+            TakePhase1Response response;
 
-            TakePhase1Response response = TakePhase1Response.newBuilder().build();
+            if (tuplespaces.isLocked(searchPattern)) {
+                response = TakePhase1Response.newBuilder().setReservedTuples(0,"").build();
+            } else {
+                tuplespaces.aquireLock(searchPattern);
+                tuplespaces.setClientId(searchPattern, clientId);
+                response = TakePhase1Response.newBuilder()
+                        .setReservedTuples(0,tuplespaces.read(searchPattern)).build();
+                tuplespaces.releaseLock(searchPattern); //This should only be called with ReleaseRequest !!!!!
+            }
+            System.out.println("chegou!");
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();

@@ -3,7 +3,7 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 public class Tuple {
     private String field;
 
-    private boolean flag;
+    private boolean flag = false;
 
     private int clientId;
 
@@ -15,13 +15,11 @@ public class Tuple {
         return field;
     }
 
-    public boolean isFlaged() {
-        return flag;
-    }
+    public boolean isTaken() { return flag;}
 
-    public void setFlag(boolean flag) {
-        this.flag = flag;
-    }
+    public void setFlag(boolean flag) { this.flag = flag;}
+
+    public void lock() { this.flag = true;}
 
     public int getClientId() {
         return clientId;

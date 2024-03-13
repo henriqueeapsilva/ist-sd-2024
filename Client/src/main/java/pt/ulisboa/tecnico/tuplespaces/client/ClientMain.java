@@ -21,15 +21,16 @@ public class ClientMain {
         }
 
         // check arguments
-        if (args.length != 3) {
+        if (args.length != 1) {
             System.err.println("Argument(s) missing!");
-            System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port>");
+            System.err.println("Usage: mvn exec:java -Dexec.args=<clientID>");
             return;
         }
         // get the host and the port
-        final String host = args[0];
-        final String port = args[1];
-        final String service = args[2];
+        final String host = "localhost";
+        final String port = "5001";
+        final String service = "TupleSpaces";
+        final String clientId = args[0];
 
         String target = host + ":" + port;
 
@@ -56,6 +57,6 @@ public class ClientMain {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
         CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
-        parser.parseInput(servers);
+        parser.parseInput(servers, Integer.parseInt(clientId));
     }
 }

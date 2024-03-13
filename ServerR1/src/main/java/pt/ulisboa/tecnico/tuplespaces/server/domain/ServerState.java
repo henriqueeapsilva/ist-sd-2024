@@ -10,11 +10,31 @@ public class ServerState {
 
   public ServerState() {
     this.tuples = new ArrayList<>();
+  }
 
+  public void setClientId(String pattern, int id) {
+    Tuple tuple = getMatchingTuple(pattern);
+    tuple.setClientId(id);
   }
 
   public boolean isInvalidTuple(String tuple) {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
+  }
+
+  public void aquireLock(String pattern) {
+    if (isInvalidTuple(pattern)) {
+      throw new IllegalArgumentException();
+    }
+    Tuple tuple = getMatchingTuple(pattern);
+    tuple.lock();
+  }
+
+  public void releaseLock(String pattern) {
+    if (isInvalidTuple(pattern)) {
+      throw new IllegalArgumentException();
+    }
+    Tuple tuple = getMatchingTuple(pattern);
+    tuple.setFlag(false);
   }
 
   public void put(String tuple) {
@@ -54,6 +74,10 @@ public class ServerState {
       }
     }
     return matchingTuple.getField();
+  }
+  public boolean isLocked(String pattern) {
+    Tuple tuple = getMatchingTuple(pattern);
+    return tuple.isTaken();
   }
 
   public String read(String pattern) {

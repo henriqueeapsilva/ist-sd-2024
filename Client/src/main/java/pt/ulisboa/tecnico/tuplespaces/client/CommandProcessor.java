@@ -24,7 +24,7 @@ public class CommandProcessor {
         this.clientService = clientService;
     }
 
-    void parseInput(ArrayList<String> servers) {
+    void parseInput(ArrayList<String> servers, int clientId) {
 
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
@@ -44,7 +44,7 @@ public class CommandProcessor {
                     break;
 
                 case TAKE:
-                    this.take(split);
+                    this.take(split, clientId);
                     break;
 
                 case GET_TUPLE_SPACES_STATE:
@@ -102,7 +102,7 @@ public class CommandProcessor {
     }
 
 
-    private void take(String[] split){
+    private void take(String[] split, int clientId){
         // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
@@ -113,7 +113,7 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // take the tuple
-        System.out.println("TODO: implement take command");
+        System.out.println(clientService.takeOperation(tuple, clientId));
     }
 
     private void getTupleSpacesState(String[] split){

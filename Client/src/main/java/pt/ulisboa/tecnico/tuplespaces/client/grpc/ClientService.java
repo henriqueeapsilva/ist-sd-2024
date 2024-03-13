@@ -103,4 +103,30 @@ public class ClientService {
         return "OK\n" + output;
     }
 
+    public String takeOperation(String tuple, int clientId) {
+        String output;
+        try {
+            TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
+                    .setSearchPattern(tuple).setClientId(clientId).build();
+
+            ResponseCollector takeRc = new ResponseCollector();
+
+            for (Integer id: delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc);
+                stub.takePhase1(request, observer);
+            }
+            System.out.println(numServers);
+            takeRc.waitUntilAllReceived(numServers);
+            output = takeRc.getFirstResponse();
+
+        } catch (StatusRuntimeException e){
+            Status status = e.getStatus();
+            return status.getDescription();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "OK\n" + output;
+    }
+
 }
