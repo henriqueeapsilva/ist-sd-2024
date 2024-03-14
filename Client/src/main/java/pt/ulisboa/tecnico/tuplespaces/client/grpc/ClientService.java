@@ -135,7 +135,7 @@ public class ClientService {
         if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) { // case: all requests accepted and null interception
             System.out.println("case 1");
             return true;
-        } else if (rc.getAcceptedRequests().size() > numServers/2) { // case: the majority accepted the request
+        } else if (rc.getAcceptedRequests().size() > numServers/2 && rc.getAcceptedRequests().size() != numServers) { // case: the majority accepted the request
             System.out.println("case 2");
             return true;
         } else if (rc.getAcceptedRequests().size() <= numServers/2) { // case: the minority accepted the request
