@@ -25,10 +25,10 @@ public class ServerMain {
             System.err.printf("Usage: java %s port%n", ServerMain.class.getName());
         }
 
-        final int port = Integer.parseInt(args[1]);
+        final int port = Integer.parseInt(args[0]);
         final BindableService impl = new ServerServiceImp();
-        final String qualifier = args[2];
-        final String service = args[3];
+        final String qualifier = args[1];
+        final String service = args[2];
 
         // Create a new server to listen on port
         Server server = ServerBuilder.forPort(port).addService(impl).build();
@@ -36,7 +36,7 @@ public class ServerMain {
         // Register on NamingServer
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 5001).usePlaintext().build();
 
-        String target = "localhost:2001";
+        String target = "localhost:" + port;
 
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
         NameServerOuterClass.registerResponse response = stub.register(NameServerOuterClass.registerRequest.newBuilder()
