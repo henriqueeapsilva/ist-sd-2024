@@ -58,9 +58,7 @@ public class ServerState {
   }
 
   public List<String> getAllMatchingTuples(String pattern) {
-
     List<String> matchingTuples = new ArrayList<>();
-    waitForMatchingTuple(pattern, false);
 
     for (Tuple tuple : this.tuples)
       if (tuple.getField().matches(pattern)) {
@@ -69,7 +67,7 @@ public class ServerState {
     return matchingTuples;
   }
 
-  private String waitForMatchingTuple(String pattern, boolean removeAfter) {
+  public String waitForMatchingTuple(String pattern, boolean removeAfter) {
     Tuple matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {
       while (matchingTuple == null) {

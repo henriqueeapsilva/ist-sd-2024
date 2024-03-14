@@ -55,6 +55,8 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
             String searchPattern = request.getSearchPattern();
             TakePhase1Response response;
 
+            tuplespaces.waitForMatchingTuple(searchPattern, false);
+            // send empty list
             if (tuplespaces.isLocked(searchPattern)) {
                 response = TakePhase1Response.newBuilder()
                         .addAllReservedTuples(new ArrayList<>()).build();
@@ -69,7 +71,7 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Request denied").asRuntimeException());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple").asRuntimeException());
         }
     }
 
