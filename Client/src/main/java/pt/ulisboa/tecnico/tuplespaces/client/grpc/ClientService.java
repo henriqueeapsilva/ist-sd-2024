@@ -103,7 +103,7 @@ public class ClientService {
         return "OK\n" + output;
     }
 
-    public String takeOperation(String tuple, int clientId) {
+    public void takeOperationPhase1(String tuple, int clientId) {
         String output;
         try {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
@@ -111,22 +111,28 @@ public class ClientService {
 
             ResponseCollector takeRc = new ResponseCollector();
 
-            for (Integer id: delayer) {
-                TupleSpacesReplicaStub stub = stubs[id];
-                TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc);
-                stub.takePhase1(request, observer);
-            }
-            System.out.println(numServers);
-            takeRc.waitUntilAllReceived(numServers);
+            do {
+                for (Integer id : delayer) {
+                    TupleSpacesReplicaStub stub = stubs[id];
+                    TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc);
+                    stub.takePhase1(request, observer);
+                }
+            } while (handleTakeCases(tuple, clientId, takeRc));
+
             output = takeRc.getFirstResponse();
 
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
-            return status.getDescription();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
-        return "OK\n" + output;
     }
 
+    public boolean handleTakeCases(String tuple, int clientId, ResponseCollector rc) {
+        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) {
+            return true;
+        }
+        else if (rc.getAcceptedRequests().size() == numServers && !rc.getCollectedResponses().isEmpty()) {
+
+        }
+        return false;
+    }
 }

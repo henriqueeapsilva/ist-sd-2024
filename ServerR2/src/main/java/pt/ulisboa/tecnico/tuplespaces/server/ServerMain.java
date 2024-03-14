@@ -18,7 +18,6 @@ public class ServerMain {
         for (int i = 0; i < args.length; i++) {
             System.err.printf("arg[%d] = %s%n", i, args[i]);
         }
-
         // check arguments
         if (args.length < 1) {
             System.err.println("Argument(s) missing!");

@@ -34,11 +34,11 @@ public class ClientMain {
 
         String target = host + ":" + port;
 
-        //Get the serve addresses from naming server
+        // Get the serve addresses from naming server
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
-        //ArrayList to register the servers hostname and ports
+        // ArrayList to register the servers hostname and ports
         ArrayList<String> servers = new ArrayList<>();
 
         try { // getting all the servers addresses

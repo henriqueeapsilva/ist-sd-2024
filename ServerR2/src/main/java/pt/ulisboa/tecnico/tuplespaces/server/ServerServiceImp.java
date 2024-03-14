@@ -53,22 +53,16 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
             String searchPattern = request.getSearchPattern();
             TakePhase1Response response;
 
-            if (tuplespaces.isLocked(searchPattern)) {
-                response = TakePhase1Response.newBuilder().setReservedTuples(0,"").build();
-            } else {
-                tuplespaces.aquireLock(searchPattern);
-                tuplespaces.setClientId(searchPattern, clientId);
-                response = TakePhase1Response.newBuilder()
-                        .setReservedTuples(0,tuplespaces.read(searchPattern)).build();
-                tuplespaces.releaseLock(searchPattern); //This should only be called with ReleaseRequest !!!!!
-            }
-            System.out.println("chegou!");
+            tuplespaces.aquireLock(searchPattern);
+            tuplespaces.setClientId(searchPattern, clientId);
+            response = TakePhase1Response.newBuilder()
+                    .addAllReservedTuples(tuplespaces.getAllMatchingTuples(searchPattern)).build();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple format!").asRuntimeException());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Request denied").asRuntimeException());
         }
     }
 

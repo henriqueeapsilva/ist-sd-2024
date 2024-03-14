@@ -1,12 +1,39 @@
 package pt.ulisboa.tecnico.tuplespaces.client.observers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ResponseCollector {
     ArrayList<String> collectedResponses;
+    private int numRejectedRequests;
+    private List<Integer> acceptedRequests;
+    private boolean isFirst;
+
 
     public ResponseCollector() {
+        rejectedRequests = 0;
+        isFirst = true;
         collectedResponses = new ArrayList<String>();
+    }
+
+    public ArrayList<String> getCollectedResponses() {
+        return collectedResponses;
+    }
+
+    public void interceptResponses(List<String> tuples) {
+        if (isFirst) {
+            for (String tuple : tuples) {
+                collectedResponses.add(tuple);
+            }
+            this.isFirst = false;
+        }
+        else {
+            for (String tuple : collectedResponses) {
+                if (!tuples.contains(tuple)) {
+                    collectedResponses.remove(tuple);
+                }
+            }
+        }
     }
 
     synchronized public void addString(String s) {
@@ -15,6 +42,7 @@ public class ResponseCollector {
             notifyAll();
         }
     }
+
 
     public String getFirstResponse() {
         return collectedResponses.get(0);
@@ -34,9 +62,7 @@ public class ResponseCollector {
         synchronized (this) {
             while (collectedResponses.size() < n) {
                 try {
-                    if (collectedResponses.size() < n) {
-                        wait();
-                    }
+                    wait();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -46,7 +72,7 @@ public class ResponseCollector {
 
     synchronized public void waitForFirstResponse() throws InterruptedException {
         synchronized (this) {
-            while (collectedResponses.size() < 1) {
+            while (collectedResponses.isEmpty()) {
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -54,5 +80,13 @@ public class ResponseCollector {
                 }
             }
         }
+    }
+
+    public int getRejectedRequests() {
+        return rejectedRequests;
+    }
+
+    public List<Integer> getAcceptedRequests() {
+        return acceptedRequests;
     }
 }
