@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.tuplespaces.server;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import main.java.pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.TupleSpacesReplicaImplBase;
 import pt.ulisboa.tecnico.tuplespaces.server.domain.*;
 
