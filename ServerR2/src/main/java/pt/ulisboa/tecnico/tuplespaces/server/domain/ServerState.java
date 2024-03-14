@@ -58,23 +58,14 @@ public class ServerState {
   }
 
   public List<String> getAllMatchingTuples(String pattern) {
+
     List<String> matchingTuples = new ArrayList<>();
-    boolean found = false;
-    synchronized (this) {
-      while(!found) {
-        try {
-          for (Tuple tuple : this.tuples)
-            if (!tuple.getField().matches(pattern)) {
-              wait();
-            } else if (tuple.getField().matches(pattern)){
-              matchingTuples.add(tuple.getField());
-            }
-        }
-        catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
+    waitForMatchingTuple(pattern, false);
+
+    for (Tuple tuple : this.tuples)
+      if (tuple.getField().matches(pattern)) {
+        matchingTuples.add(tuple.getField());
       }
-    }
     return matchingTuples;
   }
 
@@ -98,10 +89,10 @@ public class ServerState {
 
   public boolean isLocked(String pattern) {
       Tuple tuple = getMatchingTuple(pattern);
-      if (tuple.isTaken() || isInvalidTuple(pattern)) {
+      if (isInvalidTuple(pattern)) {
         throw new IllegalArgumentException();
       }
-      return false;
+      return tuple.isTaken();
   }
 
   public String read(String pattern) {

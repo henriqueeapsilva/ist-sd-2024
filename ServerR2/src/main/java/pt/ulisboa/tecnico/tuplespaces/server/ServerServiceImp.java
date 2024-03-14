@@ -5,6 +5,8 @@ import io.grpc.stub.StreamObserver;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.TupleSpacesReplicaImplBase;
 import pt.ulisboa.tecnico.tuplespaces.server.domain.*;
 
+import java.util.ArrayList;
+
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
 
 public class
@@ -53,11 +55,16 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
             String searchPattern = request.getSearchPattern();
             TakePhase1Response response;
 
-            tuplespaces.aquireLock(searchPattern);
-            tuplespaces.setClientId(searchPattern, clientId);
-            response = TakePhase1Response.newBuilder()
-                    .addAllReservedTuples(tuplespaces.getAllMatchingTuples(searchPattern)).build();
-
+            if (tuplespaces.isLocked(searchPattern)) {
+                response = TakePhase1Response.newBuilder()
+                        .addAllReservedTuples(new ArrayList<>()).build();
+            }
+            else {
+                tuplespaces.aquireLock(searchPattern);
+                tuplespaces.setClientId(searchPattern, clientId);
+                response = TakePhase1Response.newBuilder()
+                        .addAllReservedTuples(tuplespaces.getAllMatchingTuples(searchPattern)).build();
+            }
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 

@@ -114,7 +114,7 @@ public class ClientService {
             do {
                 for (Integer id : delayer) {
                     TupleSpacesReplicaStub stub = stubs[id];
-                    TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc);
+                    TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc, id);
                     stub.takePhase1(request, observer);
                 }
             } while (handleTakeCases(tuple, clientId, takeRc));

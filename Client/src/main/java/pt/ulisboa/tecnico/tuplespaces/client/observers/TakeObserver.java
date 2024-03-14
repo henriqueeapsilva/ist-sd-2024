@@ -6,8 +6,10 @@ import io.grpc.stub.StreamObserver;
 public class TakeObserver<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
+    private Integer serverId;
 
-    public TakeObserver(ResponseCollector rc){
+    public TakeObserver(ResponseCollector rc, int serverId){
+        this.serverId = serverId;
         collector = rc;
     }
 

@@ -11,7 +11,7 @@ public class ResponseCollector {
 
 
     public ResponseCollector() {
-        rejectedRequests = 0;
+        numRejectedRequests = 0;
         isFirst = true;
         collectedResponses = new ArrayList<String>();
     }
@@ -83,7 +83,7 @@ public class ResponseCollector {
     }
 
     public int getRejectedRequests() {
-        return rejectedRequests;
+        return numRejectedRequests;
     }
 
     public List<Integer> getAcceptedRequests() {
