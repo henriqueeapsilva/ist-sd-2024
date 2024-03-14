@@ -176,4 +176,19 @@ public class ClientService {
             return false;
         }
     }
+
+    public String getTupleSpacesState() {
+        TupleSpacesReplicaXuLiskov.getTupleSpacesStateRequest request = TupleSpacesReplicaXuLiskov.
+                getTupleSpacesStateRequest.newBuilder().build();
+
+        TupleSpacesReplicaStub stub = stubs[0];
+        ResponseCollector rc = new ResponseCollector();
+
+        GetTupleSpacesObserver<TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse> observer =
+                new GetTupleSpacesObserver<>(rc);
+
+        stub.getTupleSpacesState(request, observer);
+
+        return "OK\n" + rc.getCollectedResponses();
+    }
 }
