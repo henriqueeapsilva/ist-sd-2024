@@ -112,16 +112,17 @@ public class ClientService {
             ResponseCollector takeRc = new ResponseCollector();
             do {
                 for (Integer id : delayer) {
+                    System.out.println(id);
                     TupleSpacesReplicaStub stub = stubs[id];
                     TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc, id);
                     stub.takePhase1(request, observer);
                 }
+                System.out.println("enviei todas as requests!");
                 takeRc.waitForResponses(numServers);
-                System.out.println("primeiro");
-            } while (handleTakeCases(tuple, clientId, takeRc));
+            } while (handleTakeCases(clientId, takeRc));
 
             output = takeRc.getFirstResponse();
-
+            System.out.println(output);
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
         } catch (InterruptedException e) {
@@ -130,14 +131,16 @@ public class ClientService {
         return "OK\n" + output;
     }
 
-    public boolean handleTakeCases(String tuple, int clientId, ResponseCollector rc) {
-        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) {
+    public boolean handleTakeCases(int clientId, ResponseCollector rc) {
+        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) { // case: all requests accepted and null interception
+            System.out.println("case 1");
             return true;
-        }
-//        else if (rc.getAcceptedRequests().size() == numServers && !rc.getCollectedResponses().isEmpty()) {
-//
-//        }
-        else if (rc.getAcceptedRequests().size() <= numServers/2) {
+        } else if (rc.getAcceptedRequests().size() > numServers/2) { // case: the majority accepted the request
+            System.out.println("case 2");
+            return true;
+        } else if (rc.getAcceptedRequests().size() <= numServers/2) { // case: the minority accepted the request
+            System.out.println(rc.getAcceptedRequests().size());
+            System.out.println("case 3");
             TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest request = TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest
                     .newBuilder()
                     .setClientId(clientId).build();
@@ -146,7 +149,10 @@ public class ClientService {
                 TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1ReleaseResponse> observer = new TakeObserver<>(rc, id);
                 stub.takePhase1Release(request, observer);
             }
+            return true;
+        } else {
+            System.out.println("going to phase 2.");
+            return false;
         }
-        return false;
     }
 }

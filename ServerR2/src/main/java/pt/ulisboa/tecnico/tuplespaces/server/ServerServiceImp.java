@@ -6,6 +6,7 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 import pt.ulisboa.tecnico.tuplespaces.server.domain.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
 
@@ -51,22 +52,18 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
     @Override
     public void takePhase1(TakePhase1Request request, StreamObserver<TakePhase1Response> responseObserver) {
         try {
-            int clientId = request.getClientId();
+            Integer clientId = request.getClientId();
             String searchPattern = request.getSearchPattern();
             TakePhase1Response response;
 
-            tuplespaces.waitForMatchingTuple(searchPattern, false);
-            // send empty list
-            if (tuplespaces.isLocked(searchPattern)) {
-                response = TakePhase1Response.newBuilder()
-                        .addAllReservedTuples(new ArrayList<>()).build();
-            }
-            else {
-                tuplespaces.aquireLock(searchPattern);
-                tuplespaces.setClientId(searchPattern, clientId);
-                response = TakePhase1Response.newBuilder()
-                        .addAllReservedTuples(tuplespaces.getAllMatchingTuples(searchPattern)).build();
-            }
+            tuplespaces.waitForMatchingTuple(searchPattern,false); // verifies if there is any match -> if not waits
+            List<String> tuples = tuplespaces.getAllMatchingTuples(searchPattern, clientId);
+            System.out.println(tuples);
+
+            System.out.println("Vou criar a tua resposta.");
+            response = TakePhase1Response.newBuilder()
+                        .addAllReservedTuples(tuples).build();
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 

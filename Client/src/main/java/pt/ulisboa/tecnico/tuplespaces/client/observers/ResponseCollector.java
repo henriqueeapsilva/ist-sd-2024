@@ -21,19 +21,23 @@ public class ResponseCollector {
     }
 
     public synchronized void interceptResponses(List<String> tuples) {
-        if (isFirst) {
-            for (String tuple : tuples) {
-                addString(tuple);
-            }
-            this.isFirst = false;
-        }
-        else {
-            for (String tuple : collectedResponses) {
-                if (!tuples.contains(tuple)) {
-                    collectedResponses.remove(tuple);
+        System.out.println("O que recebi: ");
+        System.out.println(tuples);
+        synchronized (this){
+            if (isFirst) {
+                for (String tuple : tuples) {
+                    addString(tuple);
                 }
+                this.isFirst = false;
             }
-            notifyAll();
+            else {
+                for (String tuple : collectedResponses) {
+                    if (!tuples.contains(tuple)) {
+                        collectedResponses.remove(tuple);
+                    }
+                }
+                notifyAll();
+            }
         }
     }
 
@@ -69,13 +73,14 @@ public class ResponseCollector {
     }
 
   synchronized public void waitForResponses(int n) throws InterruptedException {
-        while (numResponses < n) {
-            System.out.println(numResponses);
-            System.out.println(n);
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        synchronized (this) {
+            while (numResponses < n) {
+                System.out.println("Am I waiting");
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

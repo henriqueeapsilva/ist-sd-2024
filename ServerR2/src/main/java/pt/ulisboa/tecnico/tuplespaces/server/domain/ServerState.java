@@ -65,13 +65,18 @@ public class ServerState {
     return null;
   }
 
-  public List<String> getAllMatchingTuples(String pattern) {
+  public List<String> getAllMatchingTuples(String pattern, Integer clientID) {
     List<String> matchingTuples = new ArrayList<>();
 
-    for (Tuple tuple : this.tuples)
-      if (tuple.getField().matches(pattern)) {
+    for (Tuple tuple : this.tuples) {
+      if (tuple.getField().matches(pattern) && !isLocked(pattern)) {
         matchingTuples.add(tuple.getField());
+        aquireLock(pattern);
+        setClientId(pattern, clientID);
       }
+    }
+    for (String tuple : matchingTuples)
+      System.out.println(tuple);
     return matchingTuples;
   }
 
