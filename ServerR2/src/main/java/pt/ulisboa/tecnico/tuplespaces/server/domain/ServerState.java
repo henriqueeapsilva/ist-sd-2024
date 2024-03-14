@@ -80,6 +80,14 @@ public class ServerState {
     return matchingTuples;
   }
 
+  public void releaseLocks(String pattern) {
+    for (Tuple tuple: tuples) {
+      if (tuple.getField().matches(pattern) && tuple.isTaken()) {
+        tuple.unlock();
+      }
+    }
+  }
+
   public String waitForMatchingTuple(String pattern, boolean removeAfter) {
     Tuple matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {

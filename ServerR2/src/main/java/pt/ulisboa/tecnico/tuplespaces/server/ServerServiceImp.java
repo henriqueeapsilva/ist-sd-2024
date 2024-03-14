@@ -83,6 +83,19 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
     }
 
     @Override
+    public void takePhase2(TakePhase2Request request, StreamObserver<TakePhase2Response> responseObserver) {
+        int clientId = request.getClientId(); //N sei onde usar
+        String pattern = request.getTuple();
+
+        tuplespaces.take(pattern);
+        tuplespaces.releaseLocks(pattern);
+
+        TakePhase2Response response = TakePhase2Response.newBuilder().build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void getTupleSpacesState(getTupleSpacesStateRequest request, StreamObserver<getTupleSpacesStateResponse> responseObserver) {
 
         getTupleSpacesStateResponse response = getTupleSpacesStateResponse.newBuilder().addAllTuple(tuplespaces.getTupleSpacesState()).build();

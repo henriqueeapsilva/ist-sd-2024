@@ -3,14 +3,12 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 
 import io.grpc.stub.StreamObserver;
 
-import java.util.ArrayList;
-
-public class TakeObserver<R> implements StreamObserver<R> {
+public class TakePhase1Observer<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
     private Integer serverId;
 
-    public TakeObserver(ResponseCollector rc, int serverId){
+    public TakePhase1Observer(ResponseCollector rc, int serverId){
         this.serverId = serverId;
         collector = rc;
     }

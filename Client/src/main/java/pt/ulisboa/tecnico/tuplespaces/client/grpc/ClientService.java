@@ -114,7 +114,7 @@ public class ClientService {
                 for (Integer id : delayer) {
                     System.out.println(id);
                     TupleSpacesReplicaStub stub = stubs[id];
-                    TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc, id);
+                    TakePhase1Observer<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakePhase1Observer<>(takeRc, id);
                     stub.takePhase1(request, observer);
                 }
                 System.out.println("enviei todas as requests!");
@@ -128,7 +128,26 @@ public class ClientService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        takeOperationPhase2(tuple, clientId);
         return "OK\n" + output;
+    }
+
+    public void takeOperationPhase2(String tuple, int clientId) {
+        try {
+            TupleSpacesReplicaXuLiskov.TakePhase2Request request = TupleSpacesReplicaXuLiskov.TakePhase2Request.newBuilder()
+                    .setTuple(tuple).setClientId(clientId).build();
+
+            ResponseCollector takeRc = new ResponseCollector();
+            for (Integer id : delayer) {
+                System.out.println(id);
+                TupleSpacesReplicaStub stub = stubs[id];
+                TakePhase2Observer<TupleSpacesReplicaXuLiskov.TakePhase2Response> observer = new TakePhase2Observer<>(takeRc, id);
+                stub.takePhase2(request, observer);
+            }
+            takeRc.waitUntilAllReceived(numServers);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean handleTakeCases(int clientId, ResponseCollector rc) {
@@ -146,7 +165,7 @@ public class ClientService {
                     .setClientId(clientId).build();
             for (Integer id : rc.getAcceptedRequests()) {
                 TupleSpacesReplicaStub stub = stubs[id];
-                TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1ReleaseResponse> observer = new TakeObserver<>(rc, id);
+                TakePhase1Observer<TupleSpacesReplicaXuLiskov.TakePhase1ReleaseResponse> observer = new TakePhase1Observer<>(rc, id);
                 stub.takePhase1Release(request, observer);
             }
             return true;
