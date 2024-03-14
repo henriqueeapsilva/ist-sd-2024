@@ -17,6 +17,14 @@ public class ServerState {
     tuple.setClientId(id);
   }
 
+  public void releaseLocks(int clientId) {
+    for (Tuple tuple: tuples) {
+      if (tuple.getClientId() == clientId) {
+        tuple.unlock();
+      }
+    }
+  }
+
   public boolean isInvalidTuple(String tuple) {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }

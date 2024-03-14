@@ -21,6 +21,8 @@ public class Tuple {
 
     public void lock() { this.flag = true;}
 
+    public void unlock() {this.flag = false;}
+
     public int getClientId() {
         return clientId;
     }

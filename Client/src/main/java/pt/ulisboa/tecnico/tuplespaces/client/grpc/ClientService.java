@@ -103,35 +103,49 @@ public class ClientService {
         return "OK\n" + output;
     }
 
-    public void takeOperationPhase1(String tuple, int clientId) {
-        String output;
+    public String takeOperationPhase1(String tuple, int clientId) {
+        String output = "";
         try {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
                     .setSearchPattern(tuple).setClientId(clientId).build();
 
             ResponseCollector takeRc = new ResponseCollector();
-
             do {
                 for (Integer id : delayer) {
                     TupleSpacesReplicaStub stub = stubs[id];
                     TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakeObserver<>(takeRc, id);
                     stub.takePhase1(request, observer);
                 }
+                takeRc.waitForResponses(numServers);
+                System.out.println("primeiro");
             } while (handleTakeCases(tuple, clientId, takeRc));
 
             output = takeRc.getFirstResponse();
 
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+        return "OK\n" + output;
     }
 
     public boolean handleTakeCases(String tuple, int clientId, ResponseCollector rc) {
         if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) {
             return true;
         }
-        else if (rc.getAcceptedRequests().size() == numServers && !rc.getCollectedResponses().isEmpty()) {
-
+//        else if (rc.getAcceptedRequests().size() == numServers && !rc.getCollectedResponses().isEmpty()) {
+//
+//        }
+        else if (rc.getAcceptedRequests().size() <= numServers/2) {
+            TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest request = TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest
+                    .newBuilder()
+                    .setClientId(clientId).build();
+            for (Integer id : rc.getAcceptedRequests()) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                TakeObserver<TupleSpacesReplicaXuLiskov.TakePhase1ReleaseResponse> observer = new TakeObserver<>(rc, id);
+                stub.takePhase1Release(request, observer);
+            }
         }
         return false;
     }

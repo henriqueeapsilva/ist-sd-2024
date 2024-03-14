@@ -3,6 +3,8 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 
 import io.grpc.stub.StreamObserver;
 
+import java.util.ArrayList;
+
 public class TakeObserver<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
@@ -16,7 +18,11 @@ public class TakeObserver<R> implements StreamObserver<R> {
     @Override
     public void onNext(R response) {
         TupleSpacesReplicaXuLiskov.TakePhase1Response takeResponse = (TupleSpacesReplicaXuLiskov.TakePhase1Response) response;
+        if (!takeResponse.getReservedTuplesList().isEmpty()) {
+            collector.addAcceptedRequest(serverId);
+        }
         collector.interceptResponses(takeResponse.getReservedTuplesList());
+        collector.incrementNumResponses();
     }
 
     @Override

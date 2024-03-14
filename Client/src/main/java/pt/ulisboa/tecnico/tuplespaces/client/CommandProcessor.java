@@ -112,7 +112,7 @@ public class CommandProcessor {
         String tuple = split[1];
 
         // take the tuple
-        System.out.println(clientService.takeOperation(tuple, clientId));
+        System.out.println(clientService.takeOperationPhase1(tuple, clientId));
     }
 
     private void getTupleSpacesState(String[] split){

@@ -5,25 +5,25 @@ import java.util.List;
 
 public class ResponseCollector {
     ArrayList<String> collectedResponses;
-    private int numRejectedRequests;
     private List<Integer> acceptedRequests;
     private boolean isFirst;
+    private Integer numResponses = 0;
 
 
     public ResponseCollector() {
-        numRejectedRequests = 0;
         isFirst = true;
-        collectedResponses = new ArrayList<String>();
+        acceptedRequests = new ArrayList<>();
+        collectedResponses = new ArrayList<>();
     }
 
     public ArrayList<String> getCollectedResponses() {
         return collectedResponses;
     }
 
-    public void interceptResponses(List<String> tuples) {
+    public synchronized void interceptResponses(List<String> tuples) {
         if (isFirst) {
             for (String tuple : tuples) {
-                collectedResponses.add(tuple);
+                addString(tuple);
             }
             this.isFirst = false;
         }
@@ -33,7 +33,16 @@ public class ResponseCollector {
                     collectedResponses.remove(tuple);
                 }
             }
+            notifyAll();
         }
+    }
+
+    public synchronized void incrementNumResponses() {
+        numResponses++;
+    }
+
+    public void addAcceptedRequest(Integer serverId) {
+        acceptedRequests.add(serverId);
     }
 
     synchronized public void addString(String s) {
@@ -43,19 +52,8 @@ public class ResponseCollector {
         }
     }
 
-
     public String getFirstResponse() {
         return collectedResponses.get(0);
-    }
-
-    synchronized public String getStrings() {
-        synchronized (this) {
-            String res = new String();
-            for (String s : collectedResponses) {
-                res = res.concat(s);
-            }
-            return res;
-        }
     }
 
     synchronized public void waitUntilAllReceived(int n) throws InterruptedException {
@@ -70,20 +68,26 @@ public class ResponseCollector {
         }
     }
 
-    synchronized public void waitForFirstResponse() throws InterruptedException {
-        synchronized (this) {
-            while (collectedResponses.isEmpty()) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+  synchronized public void waitForResponses(int n) throws InterruptedException {
+        while (numResponses < n) {
+            System.out.println(numResponses);
+            System.out.println(n);
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
-    public int getRejectedRequests() {
-        return numRejectedRequests;
+    synchronized public void waitForFirstResponse() throws InterruptedException {
+        while (collectedResponses.isEmpty()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public List<Integer> getAcceptedRequests() {
