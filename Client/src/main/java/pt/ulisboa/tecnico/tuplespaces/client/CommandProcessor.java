@@ -75,7 +75,6 @@ public class CommandProcessor {
 
         // check if input is valid
         if (!this.inputIsValid(split)) {
-            this.printUsage();
             return;
         }
 
