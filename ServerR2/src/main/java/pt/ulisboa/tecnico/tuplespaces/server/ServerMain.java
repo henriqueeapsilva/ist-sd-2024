@@ -26,7 +26,7 @@ public class ServerMain {
         final int port = Integer.parseInt(args[0]);
         final BindableService impl = new ServerServiceImp();
         final String qualifier = args[1];
-        final String service = args[2];
+        final String service = "TupleSpaces";
 
         // Create a new server to listen on port
         Server server = ServerBuilder.forPort(port).addService(impl).build();

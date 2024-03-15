@@ -16,6 +16,7 @@ public class ReadObserver<R> implements StreamObserver<R> {
         TupleSpacesReplicaXuLiskov.ReadResponse readResponse = (TupleSpacesReplicaXuLiskov.ReadResponse) response;
         String result = readResponse.getResult();
         collector.addString(result);
+        collector.incrementNumResponses();
     }
 
     @Override

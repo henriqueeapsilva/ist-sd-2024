@@ -118,6 +118,8 @@ public class ServerState {
     for (Tuple tuple : this.tuples) {
       tupleSpaces.add(tuple.getField());
     }
+    System.out.println("tupleSpaces: ");
+    System.out.println(tupleSpaces);
     return tupleSpaces;
   }
 }

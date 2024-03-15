@@ -57,7 +57,7 @@ public class ClientMain {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
         // Shutdown connection with naming server
-        channel.shutdown();
+        channel.shutdownNow();
         CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
         parser.parseInput(servers, Integer.parseInt(clientId));
     }

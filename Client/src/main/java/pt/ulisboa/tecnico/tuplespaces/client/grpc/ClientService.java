@@ -60,6 +60,7 @@ public class ClientService {
         try {
             TupleSpacesReplicaXuLiskov.PutRequest request = TupleSpacesReplicaXuLiskov.PutRequest.newBuilder()
                     .setNewTuple(tuple).build();
+
             ResponseCollector putRc = new ResponseCollector();
 
             for (Integer id : delayer) {
@@ -103,12 +104,11 @@ public class ClientService {
     }
 
     public String takeOperationPhase1(String tuple, int clientId) {
-        String output = "";
+        String output;
         try {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
                     .setSearchPattern(tuple).setClientId(clientId).build();
             ResponseCollector takeRc;
-
             do {
                 takeRc = new ResponseCollector();
                 for (Integer id : delayer) {
@@ -121,31 +121,16 @@ public class ClientService {
 
             output = takeRc.getFirstResponse();
 
+            takeOperationPhase2(tuple, clientId);
+
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
             return status.getDescription();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        takeOperationPhase2(tuple, clientId);
+
         return "OK\n" + output;
-    }
-
-    public void takeOperationPhase2(String tuple, int clientId) {
-        try {
-            TupleSpacesReplicaXuLiskov.TakePhase2Request request = TupleSpacesReplicaXuLiskov.TakePhase2Request.newBuilder()
-                    .setTuple(tuple).setClientId(clientId).build();
-
-            ResponseCollector takeRc = new ResponseCollector();
-            for (Integer id : delayer) {
-                TupleSpacesReplicaStub stub = stubs[id];
-                TakePhase2Observer<TupleSpacesReplicaXuLiskov.TakePhase2Response> observer = new TakePhase2Observer<>(takeRc);
-                stub.takePhase2(request, observer);
-            }
-            takeRc.waitUntilAllReceived(numServers);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public boolean handleTakeCases(int clientId, ResponseCollector rc) {
@@ -171,6 +156,23 @@ public class ClientService {
         }
     }
 
+    public void takeOperationPhase2(String tuple, int clientId) {
+        try {
+            TupleSpacesReplicaXuLiskov.TakePhase2Request request = TupleSpacesReplicaXuLiskov.TakePhase2Request.newBuilder()
+                    .setTuple(tuple).setClientId(clientId).build();
+
+            ResponseCollector takeRc = new ResponseCollector();
+            for (Integer id : delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                TakePhase2Observer<TupleSpacesReplicaXuLiskov.TakePhase2Response> observer = new TakePhase2Observer<>(takeRc);
+                stub.takePhase2(request, observer);
+            }
+            takeRc.waitUntilAllReceived(numServers);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String getTupleSpacesState(String qualifier) {
         String output = "";
         try {
@@ -191,7 +193,7 @@ public class ClientService {
                     stub = stubs[2];
                     break;
                 default:
-                    return "Invalid qualifier";
+                    return "Invalid qualifier - Choose from: [A,B,C]";
             }
             GetTupleSpacesObserver<TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse> observer =
                     new GetTupleSpacesObserver<>(rc);

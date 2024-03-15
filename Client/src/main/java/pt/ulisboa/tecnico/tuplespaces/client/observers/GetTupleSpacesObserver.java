@@ -21,6 +21,7 @@ public class GetTupleSpacesObserver<R>implements StreamObserver<R> {
         for (String tuple : result) {
             collector.addString(tuple);
         }
+        collector.incrementNumResponses();
     }
 
     @Override

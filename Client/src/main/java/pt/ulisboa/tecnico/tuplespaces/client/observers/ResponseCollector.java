@@ -42,7 +42,10 @@ public class ResponseCollector {
     }
 
     public synchronized void incrementNumResponses() {
-        numResponses++;
+        synchronized (this) {
+            numResponses++;
+            notifyAll();
+        }
     }
 
     public void addAcceptedRequest(Integer serverId) {
@@ -86,7 +89,7 @@ public class ResponseCollector {
     }
 
     synchronized public void waitForFirstResponse() throws InterruptedException {
-        while (collectedResponses.isEmpty()) {
+        while (numResponses == 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
