@@ -44,10 +44,26 @@ mvn -version
 
 ### Installation
 
-To compile and install all modules:
-
+contrac:
 ```s
 mvn clean install
+```
+
+## Compiling and Running
+
+NameServer:
+```s
+python3 server.py
+```
+
+ServerR2 (3 servers open): 
+```s
+mvn compile exec:java -Dexec.args="{port} {qualifier}"
+```
+
+Client: 
+```s
+mvn compile exec:java -Dexec.args="{client_Id}"
 ```
 
 ## Built With
