@@ -20,32 +20,28 @@ public class ResponseCollector {
         return collectedResponses;
     }
 
-    public synchronized void interceptResponses(List<String> tuples) {
+    synchronized public  void interceptResponses(List<String> tuples) {
         System.out.println("O que recebi: ");
         System.out.println(tuples);
-        synchronized (this){
-            if (isFirst) {
-                for (String tuple : tuples) {
-                    addString(tuple);
-                }
-                this.isFirst = false;
+        if (isFirst) {
+            for (String tuple : tuples) {
+                addString(tuple);
             }
-            else {
-                for (String tuple : collectedResponses) {
-                    if (!tuples.contains(tuple)) {
-                        collectedResponses.remove(tuple);
-                    }
+            this.isFirst = false;
+        }
+        else {
+            for (String tuple : collectedResponses) {
+                if (!tuples.contains(tuple)) {
+                    collectedResponses.remove(tuple);
                 }
-                notifyAll();
             }
+            notifyAll();
         }
     }
 
-    public synchronized void incrementNumResponses() {
-        synchronized (this) {
-            numResponses++;
-            notifyAll();
-        }
+    synchronized public void incrementNumResponses() {
+        numResponses++;
+        notifyAll();
     }
 
     public void addAcceptedRequest(Integer serverId) {
@@ -53,10 +49,8 @@ public class ResponseCollector {
     }
 
     synchronized public void addString(String s) {
-        synchronized (this) {
-            collectedResponses.add(s);
-            notifyAll();
-        }
+        collectedResponses.add(s);
+        notifyAll();
     }
 
     public String getFirstResponse() {
@@ -64,26 +58,22 @@ public class ResponseCollector {
     }
 
     synchronized public void waitUntilAllReceived(int n) throws InterruptedException {
-        synchronized (this) {
-            while (collectedResponses.size() < n) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        while (collectedResponses.size() < n) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
   synchronized public void waitForResponses(int n) throws InterruptedException {
-        synchronized (this) {
-            while (numResponses < n) {
-                System.out.println("Am I waiting");
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+        while (numResponses < n) {
+            System.out.println("Am I waiting");
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }

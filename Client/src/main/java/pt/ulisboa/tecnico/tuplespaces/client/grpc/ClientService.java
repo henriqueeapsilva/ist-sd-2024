@@ -80,7 +80,7 @@ public class ClientService {
     }
 
     public String readOperation(String tuple) {
-        String output;
+        String output = "";
         try {
             TupleSpacesReplicaXuLiskov.ReadRequest request = TupleSpacesReplicaXuLiskov.ReadRequest.newBuilder()
                     .setSearchPattern(tuple).build();
@@ -104,7 +104,7 @@ public class ClientService {
     }
 
     public String takeOperationPhase1(String tuple, int clientId) {
-        String output;
+        String output = "";
         try {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
                     .setSearchPattern(tuple).setClientId(clientId).build();
@@ -120,7 +120,6 @@ public class ClientService {
             } while (handleTakeCases(clientId, takeRc));
 
             output = takeRc.getFirstResponse();
-
             takeOperationPhase2(tuple, clientId);
 
         } catch (StatusRuntimeException e){
