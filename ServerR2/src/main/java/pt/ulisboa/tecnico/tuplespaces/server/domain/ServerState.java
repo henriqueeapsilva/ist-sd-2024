@@ -12,8 +12,7 @@ public class ServerState {
     this.tuples = new ArrayList<>();
   }
 
-  public void setClientId(String pattern, int id) {
-    Tuple tuple = getMatchingTuple(pattern);
+  public void setClientId(Tuple tuple, int id) {
     tuple.setClientId(id);
   }
 
@@ -29,9 +28,8 @@ public class ServerState {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }
 
-  public void aquireLock(String pattern) {
-    if (!isLocked(pattern)) {
-      Tuple tuple = getMatchingTuple(pattern);
+  public void aquireLock(Tuple tuple) {
+    if (!isLocked(tuple)) {
       tuple.lock();
     }
   }
@@ -61,14 +59,12 @@ public class ServerState {
     List<String> matchingTuples = new ArrayList<>();
 
     for (Tuple tuple : this.tuples) {
-      if (tuple.getField().matches(pattern) && !isLocked(pattern)) {
+      if (tuple.getField().matches(pattern)  && !isLocked(tuple)) {
         matchingTuples.add(tuple.getField());
-        aquireLock(pattern);
-        setClientId(pattern, clientID);
+        aquireLock(tuple);
+        setClientId(tuple, clientID);
       }
     }
-    for (String tuple : matchingTuples)
-      System.out.println(tuple);
     return matchingTuples;
   }
 
@@ -90,9 +86,8 @@ public class ServerState {
     return matchingTuple.getField();
   }
 
-  public boolean isLocked(String pattern) {
-      Tuple tuple = getMatchingTuple(pattern);
-      if (isInvalidTuple(pattern)) {
+  public boolean isLocked(Tuple tuple) {
+      if (isInvalidTuple(tuple.getField())) {
         throw new IllegalArgumentException();
       }
       return tuple.isTaken();
@@ -118,8 +113,6 @@ public class ServerState {
     for (Tuple tuple : this.tuples) {
       tupleSpaces.add(tuple.getField());
     }
-    System.out.println("tupleSpaces: ");
-    System.out.println(tupleSpaces);
     return tupleSpaces;
   }
 }

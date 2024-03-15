@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.tuplespaces.server;
 
-
 import io.grpc.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerGrpc;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass;
@@ -41,7 +40,6 @@ public class ServerMain {
                 .setName(service).setQualifier(qualifier).setAddress(target).build());
 
         server.start();
-
         System.err.println("Server started");
 
         // Handle Ctrl + C

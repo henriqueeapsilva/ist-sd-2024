@@ -56,11 +56,10 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
             String searchPattern = request.getSearchPattern();
             TakePhase1Response response;
 
-            tuplespaces.waitForMatchingTuple(searchPattern,false); // verifies if there is any match -> if not waits
+            // verifies if there is any match -> if not waits
+            tuplespaces.waitForMatchingTuple(searchPattern,false);
             List<String> tuples = tuplespaces.getAllMatchingTuples(searchPattern, clientId);
-            System.out.println(tuples);
 
-            System.out.println("Vou criar a tua resposta.");
             response = TakePhase1Response.newBuilder()
                         .addAllReservedTuples(tuples).build();
 

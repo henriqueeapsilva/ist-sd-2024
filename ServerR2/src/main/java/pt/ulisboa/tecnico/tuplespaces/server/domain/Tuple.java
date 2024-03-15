@@ -3,12 +3,13 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 public class Tuple {
     private String field;
 
-    private boolean flag = false;
+    private boolean flag;
 
     private int clientId;
 
     public Tuple(String field){
         this.field = field;
+        this.flag = false;
     }
 
     public String getField() {
