@@ -3,19 +3,23 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 
 import io.grpc.stub.StreamObserver;
 
-public class ReadObserver<R> implements StreamObserver<R> {
+public class TakePhase1Observer<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
+    private Integer serverId;
 
-    public ReadObserver(ResponseCollector rc){
+    public TakePhase1Observer(ResponseCollector rc, int serverId){
+        this.serverId = serverId;
         collector = rc;
     }
 
     @Override
     public void onNext(R response) {
-        TupleSpacesReplicaXuLiskov.ReadResponse readResponse = (TupleSpacesReplicaXuLiskov.ReadResponse) response;
-        String result = readResponse.getResult();
-        collector.addString(result);
+        TupleSpacesReplicaXuLiskov.TakePhase1Response takeResponse = (TupleSpacesReplicaXuLiskov.TakePhase1Response) response;
+        if (!takeResponse.getReservedTuplesList().isEmpty()) {
+            collector.addAcceptedRequest(serverId);
+        }
+        collector.interceptResponses(takeResponse.getReservedTuplesList());
         collector.incrementNumResponses();
     }
 

@@ -24,7 +24,7 @@ public class CommandProcessor {
         this.clientService = clientService;
     }
 
-    void parseInput(ArrayList<String> servers) {
+    void parseInput(ArrayList<String> servers, int clientId) {
 
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
@@ -44,7 +44,7 @@ public class CommandProcessor {
                     break;
 
                 case TAKE:
-                    this.take(split);
+                    this.take(split, clientId);
                     break;
 
                 case GET_TUPLE_SPACES_STATE:
@@ -60,6 +60,7 @@ public class CommandProcessor {
                     break;
 
                 case EXIT:
+                    clientService.shutdown();
                     exit = true;
                     break;
 
@@ -72,61 +73,43 @@ public class CommandProcessor {
     }
 
     private void put(String[] split){
-
-        // check if input is valid
         if (!this.inputIsValid(split)) {
-            this.printUsage();
             return;
         }
-
-        // get the tuple
         String tuple = split[1];
 
-        // put the tuple and checks result for operation
         System.out.println(clientService.putOperation(tuple));
-
     }
 
     private void read(String[] split){
-        // check if input is valid
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
-
-        // get the tuple
         String tuple = split[1];
 
-        // read the tuple
         System.out.println(clientService.readOperation(tuple));
     }
 
 
-    private void take(String[] split){
-        // check if input is valid
+    private void take(String[] split, int clientId){
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
-
-        // get the tuple
         String tuple = split[1];
 
-        // take the tuple
-        System.out.println("TODO: implement take command");
+        System.out.println(clientService.takeOperationPhase1(tuple, clientId));
     }
 
-    private void getTupleSpacesState(String[] split){
-
+    private void getTupleSpacesState(String[] split) {
         if (split.length != 2){
             this.printUsage();
             return;
         }
         String qualifier = split[1];
 
-        // get the tuple spaces state
-        System.out.println("TODO: implement getTupleSpacesState command");
-
+        System.out.println(clientService.getTupleSpacesState(qualifier));
     }
 
     private void sleep(String[] split) {

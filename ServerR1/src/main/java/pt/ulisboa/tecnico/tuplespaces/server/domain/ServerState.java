@@ -3,43 +3,40 @@ package pt.ulisboa.tecnico.tuplespaces.server.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ServerState {
 
-  private List<Tuple> tuples;
+  private List<String> tuples;
 
   public ServerState() {
-    this.tuples = new ArrayList<>();
+    this.tuples = new ArrayList<String>();
 
   }
 
-  public boolean isInvalidTuple(String tuple) {
+  public boolean isValidTuple(String tuple) {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }
 
   public void put(String tuple) {
-    Tuple newTuple = new Tuple(tuple);
-
-    if (isInvalidTuple(tuple)) {
+    if (isValidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
     synchronized (this) {
-      tuples.add(newTuple);
+      tuples.add(tuple);
       notifyAll();
     }
   }
 
-  private Tuple getMatchingTuple(String pattern) {
-    for (Tuple tuple : this.tuples) {
-      if (tuple.getField().matches(pattern)) {
-          return tuple;
+  private String getMatchingTuple(String pattern) {
+    for (String tuple : this.tuples) {
+      if (tuple.matches(pattern)) {
+        return tuple;
       }
     }
     return null;
   }
 
   private String waitForMatchingTuple(String pattern, boolean removeAfter) {
-    Tuple matchingTuple = getMatchingTuple(pattern);
+    String matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {
       while (matchingTuple == null) {
         try {
@@ -53,28 +50,24 @@ public class ServerState {
         tuples.remove(matchingTuple);
       }
     }
-    return matchingTuple.getField();
+    return matchingTuple;
   }
 
   public String read(String pattern) {
-    if (isInvalidTuple(pattern)) {
+    if (isValidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
     return waitForMatchingTuple(pattern, false);
   }
 
   public String take(String pattern) {
-    if (isInvalidTuple(pattern)) {
+    if (isValidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
     return waitForMatchingTuple(pattern, true);
   }
 
   public synchronized List<String> getTupleSpacesState() {
-    List<String> tupleSpaces = new ArrayList<>();
-    for (Tuple tuple : this.tuples) {
-      tupleSpaces.add(tuple.getField());
-    }
-    return tupleSpaces;
+    return new ArrayList<>(tuples);
   }
 }

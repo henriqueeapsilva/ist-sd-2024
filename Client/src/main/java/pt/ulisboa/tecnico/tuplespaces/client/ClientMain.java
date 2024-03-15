@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class ClientMain {
     static int numServers = 0;
     public static void main(String[] args) {
-
         System.err.println(ClientMain.class.getSimpleName());
 
         // receive and print arguments
@@ -19,30 +18,31 @@ public class ClientMain {
         for (int i = 0; i < args.length; i++) {
             System.err.printf("arg[%d] = %s%n", i, args[i]);
         }
-
         // check arguments
-        if (args.length != 3) {
+        if (args.length != 1) {
             System.err.println("Argument(s) missing!");
-            System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port>");
+            System.err.println("Usage: mvn exec:java -Dexec.args=<clientID>");
             return;
         }
         // get the host and the port
-        final String host = args[0];
-        final String port = args[1];
-        final String service = args[2];
+        final String host = "localhost";
+        final String port = "5001";
+        final String service = "TupleSpaces";
+        final String clientId = args[0];
 
         String target = host + ":" + port;
 
-        //Get the serve addresses from naming server
+        // Get the serve addresses from naming server
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
         NameServerGrpc.NameServerBlockingStub stub = NameServerGrpc.newBlockingStub(channel);
 
-        //ArrayList to register the servers hostname and ports
+        // ArrayList to register the servers hostname and ports
         ArrayList<String> servers = new ArrayList<>();
 
         try { // getting all the servers addresses
             lookupResponse response = stub.lookup(lookupRequest.newBuilder()
                     .setService(service).build());
+
             numServers = response.getServersList().size();
             if (numServers != 0) {
                 String address;
@@ -55,7 +55,9 @@ public class ClientMain {
         } catch (Exception e) {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
+        // Shutdown connection with naming server
+        channel.shutdownNow();
         CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
-        parser.parseInput(servers);
+        parser.parseInput(servers, Integer.parseInt(clientId));
     }
 }

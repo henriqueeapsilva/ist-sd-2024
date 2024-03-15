@@ -2,12 +2,16 @@ package pt.ulisboa.tecnico.tuplespaces.server;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
-import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc;
-import pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
+import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.TupleSpacesReplicaImplBase;
+import pt.ulisboa.tecnico.tuplespaces.server.domain.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
 
 public class
-ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
+ServerServiceImp extends TupleSpacesReplicaImplBase {
     private final ServerState tuplespaces = new ServerState();
 
     @Override
@@ -46,18 +50,48 @@ ServerServiceImp extends TupleSpacesGrpc.TupleSpacesImplBase {
     }
 
     @Override
-    public void take(TakeRequest request, StreamObserver<TakeResponse> responseObserver) {
+    public void takePhase1(TakePhase1Request request, StreamObserver<TakePhase1Response> responseObserver) {
         try {
+            Integer clientId = request.getClientId();
             String searchPattern = request.getSearchPattern();
+            TakePhase1Response response;
 
-            TakeResponse response = TakeResponse.newBuilder().setResult(tuplespaces.take(searchPattern)).build();
+            // verifies if there is any match -> if not waits
+            tuplespaces.waitForMatchingTuple(searchPattern,false);
+            List<String> tuples = tuplespaces.getAllMatchingTuples(searchPattern, clientId);
+
+            response = TakePhase1Response.newBuilder()
+                        .addAllReservedTuples(tuples).build();
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple format!").asRuntimeException());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple").asRuntimeException());
         }
+    }
+
+    @Override
+    public void takePhase1Release(TakePhase1ReleaseRequest request, StreamObserver<TakePhase1ReleaseResponse> responseObserver) {
+        int clientId = request.getClientId();
+        tuplespaces.releaseLocks(clientId);
+
+        TakePhase1ReleaseResponse releaseResponse = TakePhase1ReleaseResponse.newBuilder().build();
+        responseObserver.onNext(releaseResponse);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void takePhase2(TakePhase2Request request, StreamObserver<TakePhase2Response> responseObserver) {
+        int clientId = request.getClientId();
+        String pattern = request.getTuple();
+
+        tuplespaces.releaseLocks(clientId);
+        tuplespaces.take(pattern);
+
+        TakePhase2Response response = TakePhase2Response.newBuilder().build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
     @Override
