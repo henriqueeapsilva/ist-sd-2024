@@ -86,8 +86,8 @@ ServerServiceImp extends TupleSpacesReplicaImplBase {
         int clientId = request.getClientId();
         String pattern = request.getTuple();
 
-        tuplespaces.take(pattern);
         tuplespaces.releaseLocks(clientId);
+        tuplespaces.take(pattern);
 
         TakePhase2Response response = TakePhase2Response.newBuilder().build();
         responseObserver.onNext(response);

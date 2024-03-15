@@ -34,7 +34,6 @@ public class ClientService {
     public void createStubs(ArrayList<String> servers) {
         int i = 0;
         for (String address: servers) {
-            System.out.println("Address: " + address);
             // creating channel for the stub
             ManagedChannel channel =  ManagedChannelBuilder.forTarget(address).usePlaintext().build();
             // creating the stub for each server (replica)
@@ -47,13 +46,6 @@ public class ClientService {
     /* This method allows the command processor to set the request delay assigned to a given server */
     public void setDelay(int id, int delay) {
         delayer.setDelay(id, delay);
-
-        /* TODO: Remove this debug snippet */
-        System.out.println("[Debug only]: After setting the delay, I'll test it");
-        for (Integer i : delayer) {
-            System.out.println("[Debug only]: Now I can send request to stub[" + i + "]");
-        }
-        System.out.println("[Debug only]: Done.");
     }
 
     public String putOperation(String tuple) {

@@ -49,7 +49,6 @@ public class ClientMain {
 
                 for (int i = 0; i < numServers; i++ ){
                     address = response.getServers(i);
-                    System.out.println("Connected to:" + address);
                     servers.add(address);
                 }
             }

@@ -21,8 +21,6 @@ public class ResponseCollector {
     }
 
     synchronized public  void interceptResponses(List<String> tuples) {
-        System.out.println("O que recebi: ");
-        System.out.println(tuples);
         if (isFirst) {
             for (String tuple : tuples) {
                 addString(tuple);
@@ -69,7 +67,6 @@ public class ResponseCollector {
 
   synchronized public void waitForResponses(int n) throws InterruptedException {
         while (numResponses < n) {
-            System.out.println("Am I waiting");
             try {
                 wait();
             } catch (InterruptedException e) {

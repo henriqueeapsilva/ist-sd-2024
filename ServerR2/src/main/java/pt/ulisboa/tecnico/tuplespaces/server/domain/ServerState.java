@@ -100,7 +100,6 @@ public class ServerState {
     return waitForMatchingTuple(pattern, false);
   }
 
-
   public String take(String pattern) {
     if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
