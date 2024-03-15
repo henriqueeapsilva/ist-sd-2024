@@ -11,6 +11,7 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ClientService {
 
@@ -22,7 +23,6 @@ public class ClientService {
     private final int numServers;
 
     public ClientService(int numServers) {
-
         /* The delayer can be used to inject delays to the sending of requests to the
             different servers, according to the per-server delays that have been set  */
         delayer = new OrderedDelayer(numServers);
@@ -33,7 +33,8 @@ public class ClientService {
 
     public void createStubs(ArrayList<String> servers) {
         int i = 0;
-        for (String address: servers){
+        for (String address: servers) {
+            System.out.println("Address: " + address);
             // creating channel for the stub
             ManagedChannel channel =  ManagedChannelBuilder.forTarget(address).usePlaintext().build();
             // creating the stub for each server (replica)
@@ -55,15 +56,10 @@ public class ClientService {
         System.out.println("[Debug only]: Done.");
     }
 
-    
-
-    // multicast communication from the client (worker) to all the servers (replicas)
     public String putOperation(String tuple) {
         try {
-            // request
             TupleSpacesReplicaXuLiskov.PutRequest request = TupleSpacesReplicaXuLiskov.PutRequest.newBuilder()
                     .setNewTuple(tuple).build();
-            // response collector
             ResponseCollector putRc = new ResponseCollector();
 
             for (Integer id : delayer) {
@@ -71,7 +67,6 @@ public class ClientService {
                 PutObserver<TupleSpacesReplicaXuLiskov.PutResponse> observer = new PutObserver<>(putRc);
                 stub.put(request, observer);
             }
-
             putRc.waitUntilAllReceived(numServers);
 
         } catch (StatusRuntimeException e){
@@ -88,7 +83,6 @@ public class ClientService {
         try {
             TupleSpacesReplicaXuLiskov.ReadRequest request = TupleSpacesReplicaXuLiskov.ReadRequest.newBuilder()
                     .setSearchPattern(tuple).build();
-
             ResponseCollector readRc = new ResponseCollector();
 
             for (Integer id: delayer) {
@@ -96,9 +90,7 @@ public class ClientService {
                 ReadObserver<TupleSpacesReplicaXuLiskov.ReadResponse> observer = new ReadObserver<>(readRc);
                 stub.read(request, observer);
             }
-
             readRc.waitForFirstResponse();
-
             output = readRc.getFirstResponse();
 
         } catch (StatusRuntimeException e){
@@ -116,6 +108,7 @@ public class ClientService {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
                     .setSearchPattern(tuple).setClientId(clientId).build();
             ResponseCollector takeRc;
+
             do {
                 takeRc = new ResponseCollector();
                 for (Integer id : delayer) {
@@ -127,8 +120,10 @@ public class ClientService {
             } while (handleTakeCases(clientId, takeRc));
 
             output = takeRc.getFirstResponse();
+
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
+            return status.getDescription();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -154,11 +149,14 @@ public class ClientService {
     }
 
     public boolean handleTakeCases(int clientId, ResponseCollector rc) {
-        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) { // case: all requests accepted and null interception
+        // case: all requests accepted and null interception
+        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) {
             return true;
-        } else if (rc.getAcceptedRequests().size() > numServers/2 && rc.getAcceptedRequests().size() != numServers) { // case: the majority accepted the request
+        // case: the majority accepted the request
+        } else if (rc.getAcceptedRequests().size() > numServers/2 && rc.getAcceptedRequests().size() != numServers) {
             return true;
-        } else if (rc.getAcceptedRequests().size() <= numServers/2) { // case: the minority accepted the request
+        // case: the minority accepted the request
+        } else if (rc.getAcceptedRequests().size() <= numServers/2) {
             TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest request = TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest
                     .newBuilder()
                     .setClientId(clientId).build();
@@ -173,21 +171,40 @@ public class ClientService {
         }
     }
 
-    public String getTupleSpacesState() {
-        TupleSpacesReplicaXuLiskov.getTupleSpacesStateRequest request = TupleSpacesReplicaXuLiskov.
-                getTupleSpacesStateRequest.newBuilder().build();
+    public String getTupleSpacesState(String qualifier) {
+        String output = "";
+        try {
+            TupleSpacesReplicaXuLiskov.getTupleSpacesStateRequest request = TupleSpacesReplicaXuLiskov.
+                    getTupleSpacesStateRequest.newBuilder().build();
 
-        TupleSpacesReplicaStub stub = stubs[0];
-        ResponseCollector rc = new ResponseCollector();
+            ResponseCollector rc = new ResponseCollector();
+            TupleSpacesReplicaStub stub;
 
-        GetTupleSpacesObserver<TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse> observer =
-                new GetTupleSpacesObserver<>(rc);
+            switch(qualifier) {
+                case "A":
+                    stub = stubs[0];
+                    break;
+                case "B":
+                    stub = stubs[1];
+                    break;
+                case "C":
+                    stub = stubs[2];
+                    break;
+                default:
+                    return "Invalid qualifier";
+            }
+            GetTupleSpacesObserver<TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse> observer =
+                    new GetTupleSpacesObserver<>(rc);
 
-        stub.getTupleSpacesState(request, observer);
+            stub.getTupleSpacesState(request, observer);
+            rc.waitForFirstResponse();
+            output = rc.getCollectedResponses().toString();
 
-        return "OK\n" + rc.getCollectedResponses();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return "OK\n" + output;
     }
-
 
     public void shutdown(){
         for (ManagedChannel channel : channels)

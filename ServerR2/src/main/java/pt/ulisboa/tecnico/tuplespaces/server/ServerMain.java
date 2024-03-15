@@ -23,7 +23,6 @@ public class ServerMain {
             System.err.println("Argument(s) missing!");
             System.err.printf("Usage: java %s port%n", ServerMain.class.getName());
         }
-
         final int port = Integer.parseInt(args[0]);
         final BindableService impl = new ServerServiceImp();
         final String qualifier = args[1];

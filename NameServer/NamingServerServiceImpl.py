@@ -37,7 +37,8 @@ class NamingServerServiceImpl(NameServerServicer):
 
         service_entry = self.naming_server.map[service]
         if qualifier is None or qualifier == "":
-            servers = [entry.address for entry in service_entry.serverEntries]
+            servers = sorted(service_entry.serverEntries, key=lambda x: x.qualifier)
+            servers = [entry.address for entry in servers]
         else:
             servers = [entry.address for entry in service_entry.serverEntries if entry.qualifier == qualifier]
 
