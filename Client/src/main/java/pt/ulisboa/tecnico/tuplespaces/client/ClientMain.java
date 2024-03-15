@@ -56,6 +56,9 @@ public class ClientMain {
         } catch (Exception e) {
             System.err.println("Error occurred during lookup: " + e.getMessage());
         }
+
+        channel.shutdown();
+
         CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
         parser.parseInput(servers, Integer.parseInt(clientId));
     }

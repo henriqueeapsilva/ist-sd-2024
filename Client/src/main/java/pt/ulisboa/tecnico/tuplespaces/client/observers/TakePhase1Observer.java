@@ -16,7 +16,6 @@ public class TakePhase1Observer<R> implements StreamObserver<R> {
     @Override
     public void onNext(R response) {
         TupleSpacesReplicaXuLiskov.TakePhase1Response takeResponse = (TupleSpacesReplicaXuLiskov.TakePhase1Response) response;
-        System.out.println(takeResponse.getReservedTuplesList());
         if (!takeResponse.getReservedTuplesList().isEmpty()) {
             collector.addAcceptedRequest(serverId);
         }

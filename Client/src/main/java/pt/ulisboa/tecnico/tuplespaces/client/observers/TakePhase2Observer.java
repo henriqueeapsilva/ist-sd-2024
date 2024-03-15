@@ -5,10 +5,8 @@ import io.grpc.stub.StreamObserver;
 public class TakePhase2Observer<R> implements StreamObserver<R> {
 
     ResponseCollector collector;
-    private Integer serverId;
 
-    public TakePhase2Observer(ResponseCollector rc, int serverId){
-        this.serverId = serverId;
+    public TakePhase2Observer(ResponseCollector rc){
         collector = rc;
     }
 

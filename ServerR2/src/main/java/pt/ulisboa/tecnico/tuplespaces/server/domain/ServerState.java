@@ -36,14 +36,6 @@ public class ServerState {
     }
   }
 
-  public void releaseLock(String pattern) {
-    if (isInvalidTuple(pattern)) {
-      throw new IllegalArgumentException();
-    }
-    Tuple tuple = getMatchingTuple(pattern);
-    tuple.setFlag(false);
-  }
-
   public void put(String tuple) {
     Tuple newTuple = new Tuple(tuple);
 
@@ -78,14 +70,6 @@ public class ServerState {
     for (String tuple : matchingTuples)
       System.out.println(tuple);
     return matchingTuples;
-  }
-
-  public void releaseLocks(String pattern) {
-    for (Tuple tuple: tuples) {
-      if (tuple.getField().matches(pattern) && tuple.isTaken()) {
-        tuple.unlock();
-      }
-    }
   }
 
   public String waitForMatchingTuple(String pattern, boolean removeAfter) {

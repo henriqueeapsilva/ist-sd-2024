@@ -60,6 +60,7 @@ public class CommandProcessor {
                     break;
 
                 case EXIT:
+                    clientService.shutdown();
                     exit = true;
                     break;
 

@@ -10,11 +10,14 @@ import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplic
 
 import static pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ClientService {
 
     private TupleSpacesReplicaStub[] stubs;
     OrderedDelayer delayer;
+
+    private List<ManagedChannel> channels;
 
     private final int numServers;
 
@@ -24,6 +27,7 @@ public class ClientService {
             different servers, according to the per-server delays that have been set  */
         delayer = new OrderedDelayer(numServers);
         this.stubs = new TupleSpacesReplicaStub[numServers];
+        this.channels = new ArrayList<>();
         this.numServers = numServers;
     }
 
@@ -34,6 +38,7 @@ public class ClientService {
             ManagedChannel channel =  ManagedChannelBuilder.forTarget(address).usePlaintext().build();
             // creating the stub for each server (replica)
             stubs[i] = newStub(channel);
+            this.channels.add(channel);
             i++;
         }
     }
@@ -110,21 +115,18 @@ public class ClientService {
         try {
             TupleSpacesReplicaXuLiskov.TakePhase1Request request = TupleSpacesReplicaXuLiskov.TakePhase1Request.newBuilder()
                     .setSearchPattern(tuple).setClientId(clientId).build();
-
-            ResponseCollector takeRc = new ResponseCollector();
+            ResponseCollector takeRc;
             do {
+                takeRc = new ResponseCollector();
                 for (Integer id : delayer) {
-                    System.out.println(id);
                     TupleSpacesReplicaStub stub = stubs[id];
                     TakePhase1Observer<TupleSpacesReplicaXuLiskov.TakePhase1Response> observer = new TakePhase1Observer<>(takeRc, id);
                     stub.takePhase1(request, observer);
                 }
-                System.out.println("enviei todas as requests!");
                 takeRc.waitForResponses(numServers);
             } while (handleTakeCases(clientId, takeRc));
 
             output = takeRc.getFirstResponse();
-            System.out.println(output);
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
         } catch (InterruptedException e) {
@@ -141,9 +143,8 @@ public class ClientService {
 
             ResponseCollector takeRc = new ResponseCollector();
             for (Integer id : delayer) {
-                System.out.println(id);
                 TupleSpacesReplicaStub stub = stubs[id];
-                TakePhase2Observer<TupleSpacesReplicaXuLiskov.TakePhase2Response> observer = new TakePhase2Observer<>(takeRc, id);
+                TakePhase2Observer<TupleSpacesReplicaXuLiskov.TakePhase2Response> observer = new TakePhase2Observer<>(takeRc);
                 stub.takePhase2(request, observer);
             }
             takeRc.waitUntilAllReceived(numServers);
@@ -154,14 +155,10 @@ public class ClientService {
 
     public boolean handleTakeCases(int clientId, ResponseCollector rc) {
         if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) { // case: all requests accepted and null interception
-            System.out.println("case 1");
             return true;
         } else if (rc.getAcceptedRequests().size() > numServers/2 && rc.getAcceptedRequests().size() != numServers) { // case: the majority accepted the request
-            System.out.println("case 2");
             return true;
         } else if (rc.getAcceptedRequests().size() <= numServers/2) { // case: the minority accepted the request
-            System.out.println(rc.getAcceptedRequests().size());
-            System.out.println("case 3");
             TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest request = TupleSpacesReplicaXuLiskov.TakePhase1ReleaseRequest
                     .newBuilder()
                     .setClientId(clientId).build();
@@ -172,7 +169,6 @@ public class ClientService {
             }
             return true;
         } else {
-            System.out.println("going to phase 2.");
             return false;
         }
     }
@@ -190,5 +186,11 @@ public class ClientService {
         stub.getTupleSpacesState(request, observer);
 
         return "OK\n" + rc.getCollectedResponses();
+    }
+
+
+    public void shutdown(){
+        for (ManagedChannel channel : channels)
+            channel.shutdown();
     }
 }
