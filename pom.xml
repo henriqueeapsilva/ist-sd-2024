@@ -15,9 +15,10 @@
 	<modules>
 		<module>Contract</module>
 		<module>Client</module>
+		<module>Sequencer</module>
 		<module>ServerR1</module>
-		<module>ServerR2</module> <!--
-		<module>ServerR3</module> -->
+		<module>ServerR2</module>
+		<module>ServerR3</module>
 
 	</modules>
 
