@@ -28,9 +28,12 @@ public class ClientMain {
         final String host = "localhost";
         final String port = "5001";
         final String service = "TupleSpaces";
+        final String sequencerPort = "8080";
         final String clientId = args[0];
 
         String target = host + ":" + port;
+
+        String sequencerTarget = host + ":" + sequencerPort;
 
         // Get the serve addresses from naming server
         ManagedChannel channel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
@@ -57,7 +60,7 @@ public class ClientMain {
         }
         // Shutdown connection with naming server
         channel.shutdownNow();
-        CommandProcessor parser = new CommandProcessor(new ClientService(numServers));
+        CommandProcessor parser = new CommandProcessor(new ClientService(numServers), sequencerTarget);
         parser.parseInput(servers, Integer.parseInt(clientId));
     }
 }

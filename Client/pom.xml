@@ -24,6 +24,8 @@
 		<server.host>localhost</server.host>
 		<server.port>5001</server.port>
 		<server.service>TupleSpaces</server.service>
+		<sequencer.port>8080</sequencer.port>
+
 
 	</properties>
 
@@ -73,6 +75,7 @@
 						<argument>${server.host}</argument>
 						<argument>${server.port}</argument>
 						<argument>${server.service}</argument>
+						<argument>${sequencer.port}</argument>
 					</arguments>
 				</configuration>
 			</plugin>

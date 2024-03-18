@@ -1,9 +1,20 @@
 package pt.ulisboa.tecnico.tuplespaces.client;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
+import pt.ulisboa.tecnico.sequencer.contract.SequencerOuterClass;
+import pt.ulisboa.tecnico.sequencer.contract.SequencerGrpc;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
+import pt.ulisboa.tecnico.tuplespaces.client.observers.ResponseCollector;
+import pt.ulisboa.tecnico.tuplespaces.client.observers.SequencerObserver;
+import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaGrpc;
+import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaTotalOrder;
+
 
 import java.util.ArrayList;
 import java.util.Scanner;
+
 
 public class CommandProcessor {
 
@@ -20,8 +31,11 @@ public class CommandProcessor {
 
     private final ClientService clientService;
 
-    public CommandProcessor(ClientService clientService) {
+    private final String sequencerTarget;
+
+    public CommandProcessor(ClientService clientService, String seqTarget) {
         this.clientService = clientService;
+        this.sequencerTarget = seqTarget;
     }
 
     void parseInput(ArrayList<String> servers, int clientId) {
@@ -29,6 +43,8 @@ public class CommandProcessor {
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         clientService.createStubs(servers);
+        
+        Integer seqNumber = getSeqNumber();
 
         while (!exit) {
             System.out.print("> ");
@@ -155,6 +171,25 @@ public class CommandProcessor {
         // register delay <time> for when calling server <qualifier>
         this.clientService.setDelay(qualifier, time);
     }
+
+    private Integer getSeqNumber(){
+
+        ManagedChannel channel = ManagedChannelBuilder.forTarget(sequencerTarget).usePlaintext().build();
+        SequencerGrpc.SequencerStub stub = SequencerGrpc.newStub(channel);
+
+        SequencerOuterClass.GetSeqNumberRequest seqNumberRequest = SequencerOuterClass.GetSeqNumberRequest.newBuilder().build();
+
+        ResponseCollector rc = new ResponseCollector();
+        SequencerObserver<SequencerOuterClass.GetSeqNumberResponse> seqObserver = new SequencerObserver<>(rc);
+
+        stub.getSeqNumber(seqNumberRequest,seqObserver);
+
+        channel.shutdown();
+
+        return rc.getNextSeqNumber();
+    }
+
+
 
     private void printUsage() {
         System.out.println("Usage:\n" +

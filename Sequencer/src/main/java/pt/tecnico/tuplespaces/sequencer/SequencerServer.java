@@ -10,12 +10,12 @@ public class SequencerServer {
 	private static int port;
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(SequencerServer.class.getSimpleName());
+		System.err.println(SequencerServer.class.getSimpleName());
 
 		// Print received arguments.
-		System.out.printf("Received %d arguments%n", args.length);
+		System.err.printf("Received %d arguments%n", args.length);
 		for (int i = 0; i < args.length; i++) {
-			System.out.printf("arg[%d] = %s%n", i, args[i]);
+			System.err.printf("arg[%d] = %s%n", i, args[i]);
 		}
 
 		// Check arguments.
@@ -33,13 +33,13 @@ public class SequencerServer {
 		// Start the server.
 		server.start();
 		// Server threads are running in the background.
-		System.out.println("Sequencer server started");
+		System.err.println("Sequencer server started");
 
 		// Do not exit the main thread. Wait until server is terminated.
 		server.awaitTermination();
 
 		// Server is terminated.
-		System.out.println("Sequencer server stopped");
+		System.err.println("Sequencer server stopped");
 		server.shutdown();
 	}
 

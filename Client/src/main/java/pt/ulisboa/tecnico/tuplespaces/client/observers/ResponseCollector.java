@@ -6,6 +6,8 @@ import java.util.List;
 public class ResponseCollector {
     ArrayList<String> collectedResponses;
     private List<Integer> acceptedRequests;
+
+    private Integer seqNumber;
     private boolean isFirst;
     private Integer numResponses = 0;
 
@@ -14,6 +16,7 @@ public class ResponseCollector {
         isFirst = true;
         acceptedRequests = new ArrayList<>();
         collectedResponses = new ArrayList<>();
+        seqNumber = -1;
     }
 
     public ArrayList<String> getCollectedResponses() {
@@ -83,6 +86,14 @@ public class ResponseCollector {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    synchronized public void setSeqNumber(Integer i){
+        seqNumber = i;
+    }
+
+    synchronized public Integer getNextSeqNumber(){
+        return seqNumber;
     }
 
     public List<Integer> getAcceptedRequests() {
