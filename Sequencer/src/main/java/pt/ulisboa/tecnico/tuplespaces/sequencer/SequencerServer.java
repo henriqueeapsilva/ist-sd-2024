@@ -1,4 +1,4 @@
-package pt.tecnico.tuplespaces.sequencer;
+package pt.ulisboa.tecnico.tuplespaces.sequencer;
 
 import io.grpc.BindableService;
 import io.grpc.Server;

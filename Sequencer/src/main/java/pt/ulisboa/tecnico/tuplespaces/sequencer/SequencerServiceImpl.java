@@ -1,4 +1,4 @@
-package pt.tecnico.tuplespaces.sequencer;
+package pt.ulisboa.tecnico.tuplespaces.sequencer;
 
 import io.grpc.stub.StreamObserver;
 import pt.ulisboa.tecnico.sequencer.contract.SequencerGrpc.SequencerImplBase;
