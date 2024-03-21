@@ -60,7 +60,7 @@ public class CommandProcessor {
                     break;
 
                 case TAKE:
-                    this.take(split, clientId);
+                    this.take(split);
                     break;
 
                 case GET_TUPLE_SPACES_STATE:
@@ -89,12 +89,13 @@ public class CommandProcessor {
     }
 
     private void put(String[] split){
+        int seqNum = getSeqNumber();
         if (!this.inputIsValid(split)) {
             return;
         }
         String tuple = split[1];
 
-        System.out.println(clientService.putOperation(tuple));
+        System.out.println(clientService.putOperation(seqNum, tuple));
     }
 
     private void read(String[] split){
@@ -108,14 +109,15 @@ public class CommandProcessor {
     }
 
 
-    private void take(String[] split, int clientId){
+    private void take(String[] split){
+        int seqNum = getSeqNumber();
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
         String tuple = split[1];
 
-        System.out.println(clientService.takeOperationPhase1(tuple, clientId));
+        System.out.println(clientService.takeOperation(seqNum, tuple));
     }
 
     private void getTupleSpacesState(String[] split) {
@@ -172,7 +174,7 @@ public class CommandProcessor {
         this.clientService.setDelay(qualifier, time);
     }
 
-    private Integer getSeqNumber(){
+    private int getSeqNumber(){
 
         ManagedChannel channel = ManagedChannelBuilder.forTarget(sequencerTarget).usePlaintext().build();
         SequencerGrpc.SequencerStub stub = SequencerGrpc.newStub(channel);
