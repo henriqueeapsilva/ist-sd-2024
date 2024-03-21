@@ -9,10 +9,13 @@ public class ServerState {
 
   private List<Tuple> tuples;
 
+  private List<WaitingTake> waitingTakes;
+
   private Integer nextTask;
 
   public ServerState() {
     this.tuples = new ArrayList<>();
+    this.waitingTakes = new ArrayList<>();
     this.nextTask = 1;
   }
 
@@ -113,27 +116,50 @@ public class ServerState {
   }
 
   public String take(String pattern, Integer seqNumber) {
+
     if (isInvalidTuple(pattern)) { // checks if the tuple is valid
       throw new IllegalArgumentException();
     }
 
     // Will wait for it's turn to execute
-    while (!Objects.equals(seqNumber, nextTask)){
+    while (!Objects.equals(seqNumber, nextTask)) {
       try {
         wait();
-      } catch (InterruptedException e){
+      } catch (InterruptedException e) {
         throw new RuntimeException();
       }
     }
 
-    // normal case - it founds a matching tuple
+    /* TODO: take searches for a matching tuple & fail
+
+        if it doesn't find one - create a WaitingTake
+        and adds it to the list of waiting takes   (DONE)
+
+        then invokes advanceNextTask();   (DONE)
+
+         - this one will wait for a put to unlock it. (DONE)
+
+         - [Unlock Process] this process will unlock, remove the WaitingTake, invoke a put response and invoke advanceNextTask().
+
+    * */
+
     Tuple matchingTuple = getMatchingTuple(pattern);
-    tuples.remove(matchingTuple);
 
-    advanceNextTask();
+    if (matchingTuple == null) { // case where it doesn't find a matching Tuple
+      WaitingTake waitingTake = new WaitingTake(pattern);
+      waitingTakes.add(waitingTake);
+      advanceNextTask();
+      waitingTake.blockTake();
 
-      assert matchingTuple != null;
+      return pattern;
+    }
+
+    else { // case where it finds a matching tuple
+
+      tuples.remove(matchingTuple);
+      advanceNextTask();
       return matchingTuple.getField();
+    }
   }
 
   public synchronized List<String> getTupleSpacesState() {
