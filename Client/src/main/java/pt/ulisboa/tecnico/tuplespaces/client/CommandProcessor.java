@@ -38,14 +38,12 @@ public class CommandProcessor {
         this.sequencerTarget = seqTarget;
     }
 
-    void parseInput(ArrayList<String> servers, int clientId) {
+    void parseInput(ArrayList<String> servers) {
 
         Scanner scanner = new Scanner(System.in);
         boolean exit = false;
         clientService.createStubs(servers);
         
-        Integer seqNumber = getSeqNumber();
-
         while (!exit) {
             System.out.print("> ");
             String line = scanner.nextLine().trim();
@@ -187,7 +185,6 @@ public class CommandProcessor {
         stub.getSeqNumber(seqNumberRequest,seqObserver);
 
         channel.shutdown();
-
         return rc.getNextSeqNumber();
     }
 

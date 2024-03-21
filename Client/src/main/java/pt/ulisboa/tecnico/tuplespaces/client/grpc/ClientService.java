@@ -71,7 +71,7 @@ public class ClientService {
     }
 
     public String readOperation(String tuple) {
-        String output = "";
+        String output;
         try {
             TupleSpacesReplicaTotalOrder.ReadRequest request = TupleSpacesReplicaTotalOrder.ReadRequest.newBuilder()
                     .setSearchPattern(tuple).build();
@@ -97,51 +97,29 @@ public class ClientService {
     public String takeOperation(int seqNum, String tuple) {
         String output = "";
         try {
+
             TupleSpacesReplicaTotalOrder.TakeRequest request = TupleSpacesReplicaTotalOrder.TakeRequest.newBuilder()
                     .setSearchPattern(tuple).setSeqNumber(seqNum).build();
-            ResponseCollector takeRc;
-            /*do {
-                takeRc = new ResponseCollector();
-                for (Integer id : delayer) {
-                    TupleSpacesReplicaStub stub = stubs[id];
-                    TakePhase1Observer<TupleSpacesReplicaTotalOrder.TakeResponse> observer = new TakePhase1Observer<>(takeRc, id);
-                    stub.take(request, observer);
-                }
-                takeRc.waitForResponses(numServers);
-            } while (handleTakeCases(clientId, takeRc));
 
-            output = takeRc.getFirstResponse();*/
-            //takeOperationPhase2(tuple, clientId);
+            ResponseCollector takeRc = new ResponseCollector();
+
+            for (Integer id : delayer) {
+                TupleSpacesReplicaStub stub = stubs[id];
+                TakeObserver<TupleSpacesReplicaTotalOrder.TakeResponse> observer = new TakeObserver<>(takeRc);
+                stub.take(request, observer);
+            }
+            takeRc.waitUntilAllReceived(numServers);
+            output = takeRc.getFirstResponse();
 
         } catch (StatusRuntimeException e){
             Status status = e.getStatus();
             return status.getDescription();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
         return "OK\n" + output;
     }
-    /*
-    public boolean handleTakeCases(int clientId, ResponseCollector rc) {
-        // case: all requests accepted and null interception
-        if (rc.getAcceptedRequests().size() == numServers && rc.getCollectedResponses().isEmpty()) {
-            return true;
-        // case: the majority accepted the request
-        } else if (rc.getAcceptedRequests().size() > numServers/2 && rc.getAcceptedRequests().size() != numServers) {
-            return true;
-        // case: the minority accepted the request
-        } else if (rc.getAcceptedRequests().size() <= numServers/2) {
-            TupleSpacesReplicaTotalOrder.TakeRequest request = TupleSpacesReplicaTotalOrder.TakeRequest
-                    .newBuilder()
-                    .setClientId(clientId).build();
-            for (Integer id : rc.getAcceptedRequests()) {
-                TupleSpacesReplicaStub stub = stubs[id];
-                TakePhase1Observer<TupleSpacesReplicaTotalOrder.TakeResponse> observer = new TakePhase1Observer<>(rc, id);
-                stub.takePhase1Release(request, observer);
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }*/
+
 
     public String getTupleSpacesState(String qualifier) {
         String output = "";

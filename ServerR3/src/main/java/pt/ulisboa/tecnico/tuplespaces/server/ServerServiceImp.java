@@ -12,9 +12,10 @@ public class ServerServiceImp extends TupleSpacesReplicaImplBase {
     @Override
     public void put(PutRequest request, StreamObserver<PutResponse> responseObserver) {
         try {
+            Integer seqNum = request.getSeqNumber();
             String newTuple = request.getNewTuple();
 
-            tuplespaces.put(newTuple);
+            tuplespaces.put(newTuple, seqNum);
 
             // If the Response as no args, it serves as a placeholder to maintain the consistency of our service API.
             PutResponse response = PutResponse.newBuilder().build();
@@ -49,9 +50,11 @@ public class ServerServiceImp extends TupleSpacesReplicaImplBase {
         try {
             Integer seqNum = request.getSeqNumber();
             String searchPattern = request.getSearchPattern();
-            TakeResponse response;
 
-            // TODO: implement
+            TakeResponse response = TakeResponse.newBuilder().setResult(tuplespaces.take(searchPattern,seqNum)).build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid tuple").asRuntimeException());

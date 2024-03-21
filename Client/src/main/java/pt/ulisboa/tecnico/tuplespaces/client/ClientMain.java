@@ -61,6 +61,6 @@ public class ClientMain {
         // Shutdown connection with naming server
         channel.shutdownNow();
         CommandProcessor parser = new CommandProcessor(new ClientService(numServers), sequencerTarget);
-        parser.parseInput(servers, Integer.parseInt(clientId));
+        parser.parseInput(servers);
     }
 }

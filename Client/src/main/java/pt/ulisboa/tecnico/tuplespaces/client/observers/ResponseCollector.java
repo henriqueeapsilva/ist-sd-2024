@@ -90,9 +90,18 @@ public class ResponseCollector {
 
     synchronized public void setSeqNumber(Integer i){
         seqNumber = i;
+        notifyAll();
     }
 
     synchronized public Integer getNextSeqNumber(){
+        while(seqNumber == -1) {
+           try {
+               wait();
+           } catch (InterruptedException e){
+               throw new RuntimeException();
+           }
+        }
+
         return seqNumber;
     }
 
