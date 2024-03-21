@@ -19,26 +19,8 @@ public class ServerState {
     this.nextTask = 1;
   }
 
-  public void setClientId(Tuple tuple, int id) {
-    tuple.setClientId(id);
-  }
-
-  public void releaseLocks(int clientId) {
-    for (Tuple tuple: tuples) {
-      if (tuple.getClientId() == clientId) {
-        tuple.unlock();
-      }
-    }
-  }
-
   public boolean isInvalidTuple(String tuple) {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
-  }
-
-  public void aquireLock(Tuple tuple) {
-    if (!isLocked(tuple)) {
-      tuple.lock();
-    }
   }
 
   private Tuple getMatchingTuple(String pattern) {
@@ -50,20 +32,7 @@ public class ServerState {
     return null;
   }
 
-  public List<String> getAllMatchingTuples(String pattern, Integer clientID) {
-    List<String> matchingTuples = new ArrayList<>();
-
-    for (Tuple tuple : this.tuples) {
-      if (tuple.getField().matches(pattern)  && !isLocked(tuple)) {
-        matchingTuples.add(tuple.getField());
-        aquireLock(tuple);
-        setClientId(tuple, clientID);
-      }
-    }
-    return matchingTuples;
-  }
-
-  public String waitForMatchingTuple(String pattern, boolean removeAfter) {
+  public String waitForMatchingTuple(String pattern) {
     Tuple matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {
       while (matchingTuple == null) {
@@ -74,18 +43,8 @@ public class ServerState {
         }
         matchingTuple = getMatchingTuple(pattern);
       }
-      if (removeAfter) {
-        tuples.remove(matchingTuple);
-      }
     }
     return matchingTuple.getField();
-  }
-
-  public boolean isLocked(Tuple tuple) {
-      if (isInvalidTuple(tuple.getField())) {
-        throw new IllegalArgumentException();
-      }
-      return tuple.isTaken();
   }
 
   public void advanceNextTask() {
@@ -112,7 +71,7 @@ public class ServerState {
     if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
-    return waitForMatchingTuple(pattern, false);
+    return waitForMatchingTuple(pattern);
   }
 
   public String take(String pattern, Integer seqNumber) {
