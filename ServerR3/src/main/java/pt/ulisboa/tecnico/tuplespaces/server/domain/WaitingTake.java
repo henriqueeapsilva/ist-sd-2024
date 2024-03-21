@@ -11,7 +11,6 @@ public class WaitingTake {
         this.isBlocked = true;
     }
 
-
     synchronized public void blockTake(){
         while (isBlocked){
             try{

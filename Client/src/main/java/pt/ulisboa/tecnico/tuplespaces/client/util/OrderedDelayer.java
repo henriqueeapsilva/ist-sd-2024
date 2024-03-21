@@ -53,7 +53,6 @@ public class OrderedDelayer implements Iterable<Integer> {
             } else
                 return null;
         }
-
     }
 
     ArrayList<DelayPair> orderedDelayPairs;

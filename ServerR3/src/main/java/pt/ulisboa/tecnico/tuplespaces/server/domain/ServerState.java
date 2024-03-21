@@ -47,11 +47,15 @@ public class ServerState {
     return matchingTuple.getField();
   }
 
-  public void advanceNextTask() {
+  public synchronized void advanceTask() {
     this.nextTask++;
     notifyAll();
   }
 
+  public synchronized void addTuple(Tuple tuple) {
+    tuples.add(tuple);
+    notifyAll();
+  }
 
   // ----------- Operations -----------
 
@@ -61,10 +65,23 @@ public class ServerState {
     if (isInvalidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
-    synchronized (this) {
-      tuples.add(newTuple);
-      notifyAll();
+    // Wait for it's turn to execute
+    while (!Objects.equals(seqNum, nextTask)) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        throw new RuntimeException();
+      }
     }
+    for (WaitingTake take: this.waitingTakes) {
+      if (take.getPattern().matches(tuple)) {
+        take.unblockTake();
+        advanceTask();
+        return;
+      }
+    }
+    addTuple(newTuple);
+    advanceTask();
   }
 
   public String read(String pattern) {
@@ -74,21 +91,17 @@ public class ServerState {
     return waitForMatchingTuple(pattern);
   }
 
-  public String take(String pattern, Integer seqNumber) {
-
-    if (isInvalidTuple(pattern)) { // checks if the tuple is valid
+  public String take(String pattern, Integer seqNum) {
+    if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
-
-    // Will wait for it's turn to execute
-    while (!Objects.equals(seqNumber, nextTask)) {
+    while (!Objects.equals(seqNum, nextTask)) {
       try {
         wait();
       } catch (InterruptedException e) {
         throw new RuntimeException();
       }
     }
-
     /* TODO: take searches for a matching tuple & fail
 
         if it doesn't find one - create a WaitingTake
@@ -101,22 +114,19 @@ public class ServerState {
          - [Unlock Process] this process will unlock, remove the WaitingTake, invoke a put response and invoke advanceNextTask().
 
     * */
-
     Tuple matchingTuple = getMatchingTuple(pattern);
 
     if (matchingTuple == null) { // case where it doesn't find a matching Tuple
       WaitingTake waitingTake = new WaitingTake(pattern);
       waitingTakes.add(waitingTake);
-      advanceNextTask();
       waitingTake.blockTake();
+      advanceTask();
 
       return pattern;
     }
-
     else { // case where it finds a matching tuple
-
       tuples.remove(matchingTuple);
-      advanceNextTask();
+      advanceTask();
       return matchingTuple.getField();
     }
   }

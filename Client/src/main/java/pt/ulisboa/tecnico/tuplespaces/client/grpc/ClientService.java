@@ -120,7 +120,6 @@ public class ClientService {
         return "OK\n" + output;
     }
 
-
     public String getTupleSpacesState(String qualifier) {
         String output = "";
         try {
