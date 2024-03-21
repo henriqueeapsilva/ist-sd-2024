@@ -34,7 +34,6 @@ public class ServerServiceImp extends TupleSpacesReplicaImplBase {
     public void read(ReadRequest request, StreamObserver<ReadResponse> responseObserver) {
         try {
             String searchPattern = request.getSearchPattern();
-
             ReadResponse response = ReadResponse.newBuilder().setResult(tuplespaces.read(searchPattern)).build();
 
             responseObserver.onNext(response);

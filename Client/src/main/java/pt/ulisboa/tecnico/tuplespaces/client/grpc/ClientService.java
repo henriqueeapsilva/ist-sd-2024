@@ -73,10 +73,9 @@ public class ClientService {
     public String readOperation(String tuple) {
         String output;
         try {
-            TupleSpacesReplicaTotalOrder.ReadRequest request = TupleSpacesReplicaTotalOrder.ReadRequest.newBuilder()
-                    .setSearchPattern(tuple).build();
+            TupleSpacesReplicaTotalOrder.ReadRequest request = TupleSpacesReplicaTotalOrder.ReadRequest.newBuilder().
+                    setSearchPattern(tuple).build();
             ResponseCollector readRc = new ResponseCollector();
-
             for (Integer id: delayer) {
                 TupleSpacesReplicaStub stub = stubs[id];
                 ReadObserver<TupleSpacesReplicaTotalOrder.ReadResponse> observer = new ReadObserver<>(readRc);

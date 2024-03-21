@@ -76,6 +76,7 @@ public class ServerState {
     for (WaitingTake take: this.waitingTakes) {
       if (take.getPattern().matches(tuple)) {
         take.unblockTake();
+        waitingTakes.remove(take);
         advanceTask();
         return;
       }
@@ -102,18 +103,6 @@ public class ServerState {
         throw new RuntimeException();
       }
     }
-    /* TODO: take searches for a matching tuple & fail
-
-        if it doesn't find one - create a WaitingTake
-        and adds it to the list of waiting takes   (DONE)
-
-        then invokes advanceNextTask();   (DONE)
-
-         - this one will wait for a put to unlock it. (DONE)
-
-         - [Unlock Process] this process will unlock, remove the WaitingTake, invoke a put response and invoke advanceNextTask().
-
-    * */
     Tuple matchingTuple = getMatchingTuple(pattern);
 
     if (matchingTuple == null) { // case where it doesn't find a matching Tuple

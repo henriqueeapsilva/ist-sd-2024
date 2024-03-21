@@ -6,7 +6,6 @@ import java.util.List;
 public class ResponseCollector {
     ArrayList<String> collectedResponses;
     private List<Integer> acceptedRequests;
-
     private Integer seqNumber;
     private boolean isFirst;
     private Integer numResponses = 0;

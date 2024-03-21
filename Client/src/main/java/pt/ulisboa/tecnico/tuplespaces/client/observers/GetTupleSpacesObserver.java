@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.tuplespaces.client.observers;
 
 import io.grpc.stub.StreamObserver;
-import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov;
+import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaTotalOrder;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ public class GetTupleSpacesObserver<R>implements StreamObserver<R> {
 
     @Override
     public void onNext(R response) {
-        TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse
-                getTupleSpacesStateResponse = (TupleSpacesReplicaXuLiskov.getTupleSpacesStateResponse) response;
+        TupleSpacesReplicaTotalOrder.getTupleSpacesStateResponse
+                getTupleSpacesStateResponse = (TupleSpacesReplicaTotalOrder.getTupleSpacesStateResponse) response;
         List<String> result = getTupleSpacesStateResponse.getTupleList();
 
         for (String tuple : result) {
