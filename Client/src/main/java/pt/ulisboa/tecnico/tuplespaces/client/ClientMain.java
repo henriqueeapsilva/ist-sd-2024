@@ -19,9 +19,9 @@ public class ClientMain {
             System.err.printf("arg[%d] = %s%n", i, args[i]);
         }
         // check arguments
-        if (args.length != 1) {
-            System.err.println("Argument(s) missing!");
-            System.err.println("Usage: mvn exec:java -Dexec.args=<clientID>");
+        if (args.length != 4) {
+            System.err.println("Arguments given by POM file");
+            System.err.println("Usage: mvn exec:java");
             return;
         }
         // get the host and the port
@@ -29,7 +29,6 @@ public class ClientMain {
         final String port = "5001";
         final String service = "TupleSpaces";
         final String sequencerPort = "8080";
-        final String clientId = args[0];
 
         String target = host + ":" + port;
 

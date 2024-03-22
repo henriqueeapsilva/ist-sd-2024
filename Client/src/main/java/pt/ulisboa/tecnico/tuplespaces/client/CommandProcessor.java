@@ -87,10 +87,10 @@ public class CommandProcessor {
     }
 
     private void put(String[] split){
-        int seqNum = getSeqNumber();
         if (!this.inputIsValid(split)) {
             return;
         }
+        int seqNum = getSeqNumber();
         String tuple = split[1];
 
         System.out.println(clientService.putOperation(seqNum, tuple));
@@ -108,11 +108,11 @@ public class CommandProcessor {
 
 
     private void take(String[] split){
-        int seqNum = getSeqNumber();
         if (!this.inputIsValid(split)) {
             this.printUsage();
             return;
         }
+        int seqNum = getSeqNumber();
         String tuple = split[1];
 
         System.out.println(clientService.takeOperation(seqNum, tuple));
