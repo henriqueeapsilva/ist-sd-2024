@@ -157,7 +157,7 @@ public class CommandProcessor {
         }
         int qualifier = indexOfServerQualifier(split[1]);
         if (qualifier == -1)
-            System.out.println("Invalid server qualifier");
+            System.err.println("Invalid server qualifier");
 
         Integer time;
 

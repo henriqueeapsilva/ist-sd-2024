@@ -57,6 +57,11 @@ public class ServerState {
     notifyAll();
   }
 
+  public synchronized void unlockTake(WaitingTake take){
+    take.unblockTake();
+    waitingTakes.remove(take);
+  }
+
   // ----------- Operations -----------
 
   public void put(String tuple, Integer seqNum) {
@@ -65,6 +70,7 @@ public class ServerState {
     if (isInvalidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
+
     // Wait for it's turn to execute
     while (!Objects.equals(seqNum, nextTask)) {
       try {
@@ -74,9 +80,9 @@ public class ServerState {
       }
     }
     for (WaitingTake take: this.waitingTakes) {
+      System.out.println(take.getPattern());
       if (take.getPattern().matches(tuple)) {
-        take.unblockTake();
-        waitingTakes.remove(take);
+        unlockTake(take);
         advanceTask();
         return;
       }
@@ -108,8 +114,8 @@ public class ServerState {
     if (matchingTuple == null) { // case where it doesn't find a matching Tuple
       WaitingTake waitingTake = new WaitingTake(pattern);
       waitingTakes.add(waitingTake);
-      waitingTake.blockTake();
       advanceTask();
+      waitingTake.blockTake();
 
       return pattern;
     }
@@ -120,7 +126,7 @@ public class ServerState {
     }
   }
 
-  public synchronized List<String> getTupleSpacesState() {
+  synchronized public List<String> getTupleSpacesState() {
     List<String> tupleSpaces = new ArrayList<>();
     for (Tuple tuple : this.tuples) {
       tupleSpaces.add(tuple.getField());

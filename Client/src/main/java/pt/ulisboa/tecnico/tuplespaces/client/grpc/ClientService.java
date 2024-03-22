@@ -94,7 +94,7 @@ public class ClientService {
     }
 
     public String takeOperation(int seqNum, String tuple) {
-        String output = "";
+        String output;
         try {
 
             TupleSpacesReplicaTotalOrder.TakeRequest request = TupleSpacesReplicaTotalOrder.TakeRequest.newBuilder()
