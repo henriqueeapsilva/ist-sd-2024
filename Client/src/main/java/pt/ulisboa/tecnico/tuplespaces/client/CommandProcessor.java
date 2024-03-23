@@ -17,7 +17,6 @@ import java.util.Scanner;
 
 
 public class CommandProcessor {
-
     private static final String SPACE = " ";
     private static final String BGN_TUPLE = "<";
     private static final String END_TUPLE = ">";
@@ -173,7 +172,6 @@ public class CommandProcessor {
     }
 
     private int getSeqNumber(){
-
         ManagedChannel channel = ManagedChannelBuilder.forTarget(sequencerTarget).usePlaintext().build();
         SequencerGrpc.SequencerStub stub = SequencerGrpc.newStub(channel);
 
@@ -187,8 +185,6 @@ public class CommandProcessor {
         channel.shutdown();
         return rc.getNextSeqNumber();
     }
-
-
 
     private void printUsage() {
         System.out.println("Usage:\n" +

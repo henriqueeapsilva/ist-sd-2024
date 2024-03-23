@@ -1,9 +1,7 @@
 package pt.ulisboa.tecnico.tuplespaces.server.domain;
 
 public class WaitingTake {
-
     private final String pattern;
-
     private boolean isBlocked;
 
     public WaitingTake(String pattern) {
@@ -11,9 +9,9 @@ public class WaitingTake {
         this.isBlocked = true;
     }
 
-    synchronized public void blockTake(){
+    public synchronized void waitForUnblock(){
         while (isBlocked){
-            try{
+            try {
                 wait();
             } catch (InterruptedException e){
                 throw new RuntimeException();
@@ -21,7 +19,7 @@ public class WaitingTake {
         }
     }
 
-    synchronized public void unblockTake(){
+    public synchronized void unblockTake(){
         isBlocked = false;
         notifyAll();
     }

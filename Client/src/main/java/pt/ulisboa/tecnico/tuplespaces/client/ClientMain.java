@@ -5,7 +5,6 @@ import io.grpc.ManagedChannelBuilder;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerGrpc;
 import static pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass.*;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
-
 import java.util.ArrayList;
 
 public class ClientMain {
@@ -31,7 +30,6 @@ public class ClientMain {
         final String sequencerPort = "8080";
 
         String target = host + ":" + port;
-
         String sequencerTarget = host + ":" + sequencerPort;
 
         // Get the serve addresses from naming server

@@ -6,11 +6,8 @@ import java.util.Objects;
 
 
 public class ServerState {
-
-  private List<Tuple> tuples;
-
+  private List<String> tuples;
   private List<WaitingTake> waitingTakes;
-
   private Integer nextTask;
 
   public ServerState() {
@@ -23,9 +20,9 @@ public class ServerState {
     return tuple.charAt(0) != '<' || tuple.charAt(tuple.length() - 1) != '>' || tuple.contains(" ");
   }
 
-  private Tuple getMatchingTuple(String pattern) {
-    for (Tuple tuple : this.tuples) {
-      if (tuple.getField().matches(pattern)) {
+  private String getMatchingTuple(String pattern) {
+    for (String tuple : this.tuples) {
+      if (tuple.matches(pattern)) {
           return tuple;
       }
     }
@@ -33,7 +30,7 @@ public class ServerState {
   }
 
   public String waitForMatchingTuple(String pattern) {
-    Tuple matchingTuple = getMatchingTuple(pattern);
+    String matchingTuple = getMatchingTuple(pattern);
     synchronized (this) {
       while (matchingTuple == null) {
         try {
@@ -44,7 +41,17 @@ public class ServerState {
         matchingTuple = getMatchingTuple(pattern);
       }
     }
-    return matchingTuple.getField();
+    return matchingTuple;
+  }
+
+  public void waitForTurnToExec(Integer seqNum) {
+    while (!Objects.equals(seqNum, nextTask)) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   public synchronized void advanceTask() {
@@ -52,12 +59,12 @@ public class ServerState {
     notifyAll();
   }
 
-  public synchronized void addTuple(Tuple tuple) {
+  public synchronized void addTuple(String tuple) {
     tuples.add(tuple);
     notifyAll();
   }
 
-  public synchronized void unlockTake(WaitingTake take){
+  public synchronized void unblockTake(WaitingTake take){
     take.unblockTake();
     waitingTakes.remove(take);
   }
@@ -65,29 +72,19 @@ public class ServerState {
   // ----------- Operations -----------
 
   public void put(String tuple, Integer seqNum) {
-    Tuple newTuple = new Tuple(tuple);
-
     if (isInvalidTuple(tuple)) {
       throw new IllegalArgumentException();
     }
+    waitForTurnToExec(seqNum);
 
-    // Wait for it's turn to execute
-    while (!Objects.equals(seqNum, nextTask)) {
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        throw new RuntimeException();
-      }
-    }
     for (WaitingTake take: this.waitingTakes) {
-      System.out.println(take.getPattern());
       if (take.getPattern().matches(tuple)) {
-        unlockTake(take);
+        unblockTake(take);
         advanceTask();
         return;
       }
     }
-    addTuple(newTuple);
+    addTuple(tuple);
     advanceTask();
   }
 
@@ -102,35 +99,25 @@ public class ServerState {
     if (isInvalidTuple(pattern)) {
       throw new IllegalArgumentException();
     }
-    while (!Objects.equals(seqNum, nextTask)) {
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        throw new RuntimeException();
-      }
-    }
-    Tuple matchingTuple = getMatchingTuple(pattern);
+    waitForTurnToExec(seqNum);
+
+    String matchingTuple = getMatchingTuple(pattern);
 
     if (matchingTuple == null) { // case where it doesn't find a matching Tuple
       WaitingTake waitingTake = new WaitingTake(pattern);
       waitingTakes.add(waitingTake);
       advanceTask();
-      waitingTake.blockTake();
-
+      waitingTake.waitForUnblock();
       return pattern;
     }
     else { // case where it finds a matching tuple
       tuples.remove(matchingTuple);
       advanceTask();
-      return matchingTuple.getField();
+      return matchingTuple;
     }
   }
 
-  synchronized public List<String> getTupleSpacesState() {
-    List<String> tupleSpaces = new ArrayList<>();
-    for (Tuple tuple : this.tuples) {
-      tupleSpaces.add(tuple.getField());
-    }
-    return tupleSpaces;
+  public List<String> getTupleSpacesState() {
+    return tuples;
   }
 }

@@ -7,7 +7,6 @@ import pt.ulisboa.tecnico.tuplespaces.centralized.contract.NameServerOuterClass;
 import java.io.IOException;
 
 public class ServerMain {
-
     public static void main(String[] args) throws IOException, InterruptedException{
 
         System.err.println(ServerMain.class.getSimpleName());

@@ -10,7 +10,6 @@ import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesRepl
 import static pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaGrpc.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ClientService {
 
@@ -96,7 +95,6 @@ public class ClientService {
     public String takeOperation(int seqNum, String tuple) {
         String output;
         try {
-
             TupleSpacesReplicaTotalOrder.TakeRequest request = TupleSpacesReplicaTotalOrder.TakeRequest.newBuilder()
                     .setSearchPattern(tuple).setSeqNumber(seqNum).build();
 

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 
 public class OrderedDelayer implements Iterable<Integer> {
-    
     class DelayPair implements Comparable<DelayPair> {
         public int id;
         public int delay;

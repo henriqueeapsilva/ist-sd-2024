@@ -4,7 +4,6 @@ import io.grpc.stub.StreamObserver;
 import pt.ulisboa.tecnico.sequencer.contract.SequencerOuterClass;
 
 public class SequencerObserver<R> implements StreamObserver<R> {
-
     ResponseCollector collector;
 
     public SequencerObserver(ResponseCollector rc){
