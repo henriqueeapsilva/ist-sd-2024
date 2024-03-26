@@ -44,7 +44,7 @@ mvn -version
 
 ### Installation
 
-contrac:
+contract:
 ```s
 mvn clean install
 ```
@@ -56,14 +56,19 @@ NameServer:
 python3 server.py
 ```
 
-ServerR2 (3 servers open): 
+ServerR3 (3 servers open): 
 ```s
 mvn compile exec:java -Dexec.args="{port} {qualifier}"
 ```
 
+Sequencer:
+```s
+mvn compile exec:java
+```
+
 Client: 
 ```s
-mvn compile exec:java -Dexec.args="{client_Id}"
+mvn compile exec:java
 ```
 
 ## Built With
